@@ -1,0 +1,53 @@
+{
+  "name": "quizzy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/quizzy/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/quizzy",
+        "main": "apps/quizzy/src/main.ts",
+        "tsConfig": "apps/quizzy/tsconfig.app.json",
+        "assets": ["apps/quizzy/src/assets"],
+        "webpackConfig": "apps/quizzy/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "quizzy:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "quizzy:build:development"
+        },
+        "production": {
+          "buildTarget": "quizzy:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/quizzy/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
