@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import FirebaseModule.forRoot({  googleApplicationCredential:    'apps/quizzy-back/src/assets/quizzy-firebase-key.json',})
+import { FirebaseModule } from 'nestjs-firebase';
 
 @Module({
-  imports: [],
+  imports: [
+    FirebaseModule.forRoot({  
+      googleApplicationCredential: 'apps/quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-72962ed00c.json',
+    })],
   controllers: [AppController],
   providers: [AppService],
 })
