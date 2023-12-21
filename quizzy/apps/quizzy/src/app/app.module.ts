@@ -8,7 +8,7 @@ import { FirebaseModule } from 'nestjs-firebase';
   imports: [
     FirebaseModule.forRoot({
       googleApplicationCredential:
-        'apps/quizzy/src/assets/quizzy-firebase-key.json'
+        'apps/quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-38378d1f85.json'
     }),
   ],
   controllers: [AppController],
