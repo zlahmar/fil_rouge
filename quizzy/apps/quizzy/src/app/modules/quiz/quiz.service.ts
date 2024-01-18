@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Quizz } from './model/quizz';
+import { Quiz } from './model/quiz';
 
 @Injectable()
-export class QuizzService {
-    listQuizz = []
+export class QuizService {
+    listQuiz = []
 
-    create(quizz : Quizz){
-        this.listQuizz = [...this.listQuizz, quizz];
+    create(quiz : Quiz){
+        this.listQuiz = [...this.listQuiz, quiz];
     }
 
     selectAll(){
-        return this.listQuizz;
+        return this.listQuiz;
     }
 
     selectOne(id : string){
-        this.listQuizz.forEach(quiz => {
+        this.listQuiz.forEach(quiz => {
             console.log("curr:", quiz.id);
             console.log("id:", Number(id));
             if (quiz.id == Number(id)){

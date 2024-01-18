@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { FirebaseModule } from 'nestjs-firebase';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { QuizzModule } from './modules/quiz/quizz.module';
+import { QuizModule } from './modules/quiz/quiz.module';
 import { PingModule } from './modules/ping/ping.module';
 
 @Module({
@@ -15,7 +15,7 @@ import { PingModule } from './modules/ping/ping.module';
     }),
     UsersModule,
     AuthModule,
-    QuizzModule,
+    QuizModule,
     PingModule
   ],
   controllers: [AppController],
