@@ -4,8 +4,7 @@ import { Auth } from '../auth/auth.decorator';
 @Controller('ping')
 export class PingController {
     @Get()
-    
     ping() {
-        return 'OK';
+        return {'Status': 'OK'};
     }
 }
