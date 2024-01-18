@@ -1,12 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { PingService } from './ping.service';
 
-@Controller('ping')
+@Controller('api')
 export class PingController {
-  constructor(private readonly pingService: PingService) {}
+  @Get('ping')
+  ping(): { status: string } {
+    
+    const isAppHealthy = true;
 
-  @Get()
-  ping(): string {
-    return this.pingService.ping();
+    if (isAppHealthy) {
+      return { status: 'OK' };
+    } else {
+      throw new Error('Internal Server Error');
+    }
   }
 }

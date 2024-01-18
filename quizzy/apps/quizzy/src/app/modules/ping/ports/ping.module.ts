@@ -3,10 +3,6 @@ import { PingController } from "./ping.controller";
 import { PingService } from "./ping.service";
 
 @Module({
-    imports: [
-    ],
-  
-    controllers: [PingController],
-    providers: [ PingService],
-  })
-  export class PingModule {}
+  controllers: [PingController],
+})
+export class PingModule {}
