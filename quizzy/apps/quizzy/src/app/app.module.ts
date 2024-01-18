@@ -5,16 +5,18 @@ import { FirebaseModule } from 'nestjs-firebase';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { QuizzModule } from './modules/quizz/quizz.module';
+import { PingModule } from './modules/ping/ping.module';
 
 @Module({
   imports: [
     FirebaseModule.forRoot({
       googleApplicationCredential:
-        '../assets/quizzy-firebase-adminsdk.json',
+        '/Users/quentin/webservice_ynov/fil_rouge/quizzy/apps/quizzy/src/assets/quizzy-firebase-adminsdk.json',
     }),
     UsersModule,
     AuthModule,
-    QuizzModule
+    QuizzModule,
+    PingModule
   ],
   controllers: [AppController],
   providers: [AppService]
