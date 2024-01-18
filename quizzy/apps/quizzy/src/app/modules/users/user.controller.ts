@@ -1,9 +1,4 @@
-/*import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
-@Controller('user')
-export class UserController {
-    @Get()
-    getUser() : string{
-        return 'Bonjour user';
-    }
-}*/
+@Controller('users')
+export class UsersController {}
