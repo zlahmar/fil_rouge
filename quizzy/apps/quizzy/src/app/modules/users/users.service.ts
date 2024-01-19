@@ -5,21 +5,21 @@ import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 export class UsersService {
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
 
-    async createUser(newUser: string): Promise<void> {
-        this.fa.firestore.collection('utilisateurs').add({ uid: '1' , username: newUser['username']}).then(r => console.log(r));
-        
+    async createUser(newUser): Promise<void> {
+        console.log("NEW USER: ",newUser);
+        //il nous manque l'uid
+        this.fa.firestore.collection('utilisateurs').add({ uid: '6' , username: newUser['username']}).then(r => console.log(r));
     }
     async getUser(): Promise<any> {
-        var data = await this.fa.firestore.collection('utilisateurs').doc("ZDGSLVjgxjY6dqx1mZ2e").get();
-        // console.log("GET DATA: ", data);
-        var username = data['_fieldsProto']['username']['stringValue'];
-        // console.log("GET USERNAME: ", username);
-        return {username: username};
+        var querySnapshot = await this.fa.firestore.collection('utilisateurs').where('uid', '==', "4").get();
+        if (querySnapshot.empty) {
+            console.log('GET_USER: No matching documents.');
+            return null;
+        }
+        var dataUser = querySnapshot.docs[0].data();
+        console.log("GET_DATA_USER: ", dataUser);
+
+        return {username: dataUser['username'], email: "", uid: dataUser['uid']};
 
     }
-
-    // constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {
-    //     console.log(fa);
-    //     this.fa.firestore.collection('test').add({ test: 'test' }).then(r => console.log(r));
-    // }
 }
