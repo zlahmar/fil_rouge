@@ -14,6 +14,15 @@ createUser(@Body() newUser,@Headers('authorization') authHeader: string) {
     }
     return this.userService.createUser(newUser, token);
   }
+  //Je pense qu'il n'y pas besoin de l'authentification pour créer un user on peut tester ce code :
+
+  /*@Post()
+  async createUser(@Body() newUser, @Req() req): Promise<any> {
+    const decodedUser = req.user;
+
+    // Vous pouvez utiliser decodedUser.uid ou d'autres propriétés selon vos besoins
+    return this.userService.createUser(newUser, decodedUser);
+  }*/
 
   @Get('/me')
 getUser(@Headers('authorization') authHeader: string) {
