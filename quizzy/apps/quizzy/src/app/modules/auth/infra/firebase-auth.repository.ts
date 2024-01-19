@@ -7,7 +7,7 @@ import { AuthRepository } from '../ports/auth.repository';
 export class FirebaseAuthRepository implements AuthRepository {
   async getUserFromToken(token: string): Promise<UserDetails> {
     const decodedToken = await admin.auth().verifyIdToken(token);
-
+    console.log("Decoded_token: ", decodedToken.uid);
     return {
       email: decodedToken.email,
       uid: decodedToken.uid,

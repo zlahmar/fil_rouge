@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Req, Body } from '@nestjs/common';
+import { Controller, Post, Get, Req, Body, Headers, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 
@@ -7,14 +7,20 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Post()
-createUser(@Body() newUSer) {
-    // const uid = req.user.uid;
-    return this.userService.createUser(newUSer);
+createUser(@Body() newUser,@Headers('authorization') authHeader: string) {
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+        throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.userService.createUser(newUser, token);
   }
 
   @Get('/me')
-getUser() {
-    // const uid = req.user.uid;
-    return this.userService.getUser();
+getUser(@Headers('authorization') authHeader: string) {
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+        throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.userService.getUser(token);
   }
 }
