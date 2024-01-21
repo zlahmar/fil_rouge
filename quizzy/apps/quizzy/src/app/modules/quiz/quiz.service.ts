@@ -1,14 +1,26 @@
 import { Injectable } from '@nestjs/common';
+import { Quiz } from './model/quiz';
 
 @Injectable()
 export class QuizService {
-  createQuiz(quizData: any): string {
-    // Logique de création du questionnaire
-    return 'Quiz créé avec succès!';
-  }
+    listQuiz = []
 
-  createUser(userData: any): string {
-    // Logique de création de l'utilisateur
-    return 'Utilisateur créé avec succès!';
-  }
+    create(quiz : Quiz){
+        this.listQuiz = [...this.listQuiz, quiz];
+    }
+
+    selectAll(){
+        return this.listQuiz;
+    }
+
+    selectOne(id : string){
+        this.listQuiz.forEach(quiz => {
+            console.log("curr:", quiz.id);
+            console.log("id:", Number(id));
+            if (quiz.id == Number(id)){
+                return quiz;
+            }
+        });
+    }
+
 }

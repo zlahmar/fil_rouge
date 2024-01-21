@@ -1,17 +1,31 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Body, Controller, Post, Get, Req } from '@nestjs/common';
 import { QuizService } from './quiz.service';
+import { request } from 'http';
+import { RequestWithUser } from '../auth/model/request-with-user';
 
-@Controller('api/quiz')
+@Controller('quiz')
 export class QuizController {
-  constructor(private readonly quizService: QuizService) {}
+    constructor(private readonly quizzService: QuizService) { }
 
-  @Post('create')
-  createQuiz(@Body() quizData: any): string {
-    return this.quizService.createQuiz(quizData);
-  }
+    @Post()
+    createQuizz(@Body() newQuizz) {
+        console.log('the Quizzcrezte', newQuizz);
+        this.quizzService.create(newQuizz);
+    }
 
-  @Post('user/create')
-  createUser(@Body() userData: any): string {
-    return this.quizService.createUser(userData);
-  }
+    @Get()
+    getAllQuizz() {
+        const listeQuiz = this.quizzService.selectAll();
+        console.log("Liste Quiz: ", listeQuiz);
+        return listeQuiz;
+    }
+
+    @Get(':id')
+    getQuizz(@Req() request : RequestWithUser) {
+        console.log("parms id: ", request.params.id);
+        const theQuiz = this.quizzService.selectOne(request.params.id);
+        console.log("Quiz selected: ", theQuiz);
+        return theQuiz;
+    }
 }
+
