@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 import * as admin from 'firebase-admin';
 import { User } from './user_model';
@@ -13,7 +13,7 @@ export class UsersService {
         const uidUser = decodedToken.uid;
         console.log("Decoded_token_UID: ", uidUser);
 
-        // Vérifiez si la propriété 'username' est définie
+        // Vérifiez si le username est définie
         if (!newUser || !newUser.username) {
             throw new Error('Username is required.');
         }
@@ -33,23 +33,29 @@ export class UsersService {
     }
 
     async getUser(idToken: string): Promise<any> {
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        const emailUser = decodedToken.email;
-        console.log("Decoded_token_UID_LOGIN: ", emailUser);
-
-        var querySnapshot = await this.fa.firestore.collection('utilisateurs').where('uid', '==', String(decodedToken.uid)).get();
-        if (querySnapshot.empty) {
-            console.log('GET_USER: No matching documents.');
-            return null;
+        try {
+            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            const emailUser = decodedToken.email;
+            console.log("Decoded_token_UID_LOGIN: ", emailUser);
+            
+            const querySnapshot = await this.fa.firestore.collection('utilisateurs').where('uid', '==', String(decodedToken.uid)).get();
+            
+            if (querySnapshot.empty) {
+                console.log('GET_USER_PROFILE: No matching documents.');
+                throw new Error('User not found');
+            }
+    
+            const dataUser = querySnapshot.docs[0].data();
+            console.log("GET_DATA_USER: ", dataUser);
+    
+            return {
+                username: String(dataUser['username']),
+                email: dataUser['email'],
+                uid: String(dataUser['uid']),
+            };
+        } catch (error) {
+            console.error('Error getting user profile:', error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
-
-        var dataUser = querySnapshot.docs[0].data();
-        console.log("GET_DATA_USER: ", dataUser);
-
-        return {
-            username: String(dataUser['username']),
-            email: dataUser['email'],
-            uid: String(dataUser['uid']),
-        };
     }
 }
