@@ -21,6 +21,7 @@ async function bootstrap() {
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );
+  const globalUrl = `http://localhost:${port}/${globalPrefix}`;
 }
 
 bootstrap();
