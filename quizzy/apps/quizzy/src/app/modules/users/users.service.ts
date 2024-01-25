@@ -6,31 +6,26 @@ import { User } from './user_model';
 export class UsersService {
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
 
-    async createUser(newUser : User, idToken:string): Promise<void> {
-        console.log("NEW USER: ",newUser);
+    async createUser(newUser, idToken:string): Promise<void> {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uidUser = decodedToken.uid;
-        console.log("Decoded_token_UID: ", uidUser);
-        
+        const emailUser = decodedToken.email;
         this.fa.firestore.doc('utilisateurs/'+uidUser).set({
-            username: newUser.name,
-            email:newUser.email,
+            username: newUser["username"],
+            email: emailUser,
         })
     }
     async getUser(idToken:string): Promise<any> {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uidUser = decodedToken.uid;
-        const emailUser = decodedToken.email;
-        console.log("Decoded_token_UID_LOGIN: ", emailUser);
-
-        // var querySnapshot = await this.fa.firestore.collection('utilisateurs').where('uid', '==', String(decodedToken.uid)).get();
+        
         var querySnapshot = await this.fa.firestore.collection('utilisateurs').doc(uidUser).get();
         if (!querySnapshot.exists){
             return null;
         }
         var dataUser = querySnapshot.data();
 
-        return {username: dataUser['username'], email: dataUser['email'], uid: dataUser['uid']};
+        return {username: dataUser['username'], email: "", uid: dataUser['uid']};
 
     }
 }
