@@ -13,12 +13,12 @@ export class QuizController {
         this.quizzService.create(newQuizz);
     }
 
-    @Get()
+   /* @Get()
     getAllQuizz() {
         const listeQuiz = this.quizzService.selectAll();
         console.log("Liste Quiz: ", listeQuiz);
         return listeQuiz;
-    }
+    }*/
 
     @Get(':id')
     getQuizz(@Req() request : RequestWithUser) {
