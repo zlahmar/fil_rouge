@@ -29,7 +29,10 @@ export class QuizController {
     }
 
     @Get()
-    getAllQuizz(@Req() request : RequestWithUser) {
+    getAllQuizz(@Req() request : RequestWithUser, @Headers('authorization') authHeader: string) {
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        console.log("token: ",token)
+        // console.log("allquizz: ",request)
         try {
             const uid = request.user.uid;
             const listeQuiz = this.quizzService.selectAll(uid);
@@ -61,11 +64,13 @@ export class QuizController {
             const uid = request.user.uid;
             const resUpdate = await this.quizzService.update(request.params.id,request.body, uid);
             if (resUpdate) {
-                return HttpStatus.NO_CONTENT;
+                // return HttpStatus.NO_CONTENT;
+                return res.sendStatus(204).json();
             }else{
                 throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
             }
         } catch (error) {
+            console.log("ERROR PATCH: ", error);
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }

@@ -73,20 +73,21 @@ export class QuizService {
     }
 
     async update(id : string, data, uidUser:string): Promise<any>{
+        // [{op: "replace", path: "/title", value: "<new title>"}]
         try {
+            console.log("update_data: ", data);
             if (data){
                 data.forEach(async element => {
-                    const operation = element['op'];
-                    const path = element['path'];
-                    const value = element['value'];
+                    const cleanPath = element['path'].startsWith('/') ? element['path'].slice(1) : element['path'];
                     const documentData = await this.fa.firestore.collection('quiz').doc(id).get();
 
                     if (documentData.data()['uid'] != uidUser){
                         throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
                     }
-                    switch (operation) {
+                    switch (element['op']) {
                         case 'replace':
-                            const resUpdate = await this.fa.firestore.collection('quiz').doc(id).update({[path]: value});
+                            console.log("replace");
+                            const resUpdate = await this.fa.firestore.collection('quiz').doc(id).update({[cleanPath]: element['value']});
                             console.log("resUpdate: ", resUpdate);
                     }
                 });
