@@ -12,14 +12,17 @@ export class UsersController {
 
 async createUser(@Body() newUser, @Req() request : RequestWithUser) {
     const uid = request.user.uid;
-    const resCreate = await this.userService.createUser(newUser, uid);
-    // return HttpStatus.CREATED; //status code 201
-    return resCreate;
+    const email = request.user.email;
+    const resCreate = await this.userService.createUser(newUser, uid, email);
+    return HttpStatus.CREATED; //status code 201
+    // return resCreate;
   }
 
-  @Get('/me')
+@Get('/me')
 async getUser(@Req() request : RequestWithUser) {
     const uid = request.user.uid;
-    return await this.userService.getUser(uid);
+    const retour = await this.userService.getUser(uid);
+    console.log("retour: ", retour);
+    return retour;
   }
 }

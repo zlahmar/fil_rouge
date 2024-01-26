@@ -63,7 +63,7 @@ export class QuizService {
             console.log("quizObj: ", quizObj);
 
             return quizObj;
-            // return {"title": documentData.data()['title'], 
+            // return {"title": documentData.data()['title'],
             //         "description": documentData.data()['description'],
             //         "questions": []};
         } catch (error) {
