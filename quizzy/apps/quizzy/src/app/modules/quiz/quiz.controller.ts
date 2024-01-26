@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Req, Headers, HttpException, HttpStatus, Response, Patch } from '@nestjs/common';
+import { Body, Controller, Post, Get, Req, Headers, HttpException, HttpStatus, Response, Patch, Put } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { Response as Res } from 'express';
 import { RequestWithUser } from '../auth/model/request-with-user';
@@ -10,6 +10,7 @@ export class QuizController {
     constructor(private readonly quizzService: QuizService) { }
 
     @Auth()
+
     @Post()
     async createQuizz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser){
         try {
@@ -42,13 +43,11 @@ export class QuizController {
         }
     }
 
-    @Get(':id')
+    @Get(':quizId')
     getQuizz(@Req() request : RequestWithUser) {
         try {
             const uid = request.user.uid;
-            console.log("parms id: ", request.params.id);
-            const theQuiz = this.quizzService.selectOne(request.params.id, uid);
-            console.log("Quiz selected: ", theQuiz);
+            const theQuiz = this.quizzService.selectOne(request.params.quizId, uid);
             if (!theQuiz) {
                 throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
             }
@@ -58,13 +57,45 @@ export class QuizController {
         }
     }
 
-    @Patch(':id')
+    @Patch(':quizId')
     async updateQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
         try {
             const uid = request.user.uid;
-            const resUpdate = await this.quizzService.update(request.params.id,request.body, uid);
+            const resUpdate = await this.quizzService.updateQuiz(request.params.quizId,request.body, uid);
             if (resUpdate) {
                 // return HttpStatus.NO_CONTENT;
+                return res.sendStatus(204).json();
+            }else{
+                throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
+            }
+        } catch (error) {
+            console.log("ERROR PATCH: ", error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Post(':quizId/questions')
+    async createQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
+        try {
+            const uid = request.user.uid;
+            const resCreate = await this.quizzService.createQuestion(request.params.quizId,request.body, uid);
+            if (resCreate) {
+                return res.setHeader('Location', 'http://localhost:3000/api/quiz/' + request.params.quizId).json().sendStatus(201);
+            }else{
+                throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
+            }
+        } catch (error) {
+            console.log("ERROR PATCH: ", error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Put(':quizId/questions:questionId')
+    async updateQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
+        try {
+            const uid = request.user.uid;
+            const resUpdate = await this.quizzService.updateQuestion(request.params.quizId,request.params.questionId,request.body, uid);
+            if (resUpdate) {
                 return res.sendStatus(204).json();
             }else{
                 throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
