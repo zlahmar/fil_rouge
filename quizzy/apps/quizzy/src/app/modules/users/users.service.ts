@@ -26,7 +26,5 @@ export class UsersService {
         } catch (error) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
-        
-
     }
 }

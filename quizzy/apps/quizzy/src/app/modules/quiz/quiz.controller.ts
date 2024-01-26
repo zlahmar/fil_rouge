@@ -11,7 +11,7 @@ export class QuizController {
 
     @Auth()
     @Post()
-    async createQuizz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser) {
+    async createQuizz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser){
         try {
             const uid = request.user.uid;
             const resQuiz = await this.quizzService.create(newQuizz, uid);

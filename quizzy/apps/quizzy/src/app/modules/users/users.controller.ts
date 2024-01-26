@@ -22,7 +22,6 @@ async createUser(@Body() newUser, @Req() request : RequestWithUser) {
 async getUser(@Req() request : RequestWithUser) {
     const uid = request.user.uid;
     const retour = await this.userService.getUser(uid);
-    console.log("retour: ", retour);
     return retour;
   }
 }
