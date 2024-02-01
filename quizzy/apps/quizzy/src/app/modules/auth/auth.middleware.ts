@@ -41,7 +41,7 @@ export class AuthMiddleware implements NestMiddleware {
       return this.repository.getUserFromToken(tokenString);
     } catch (err) {
       this.logger.error(`error while authenticate request ${err.message}`);
-      throw new UnauthorizedException(err.message);
+      throw new UnauthorizedException('Unauthorized');
     }
   }
 

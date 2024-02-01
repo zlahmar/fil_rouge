@@ -1,32 +1,28 @@
-import { Controller, Post, Get, Headers, HttpException, HttpStatus, Body } from '@nestjs/common';
+import { Controller, Post, Get, Req, Body, Headers, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user_model';
+import { Auth } from '../auth/auth.decorator';
+import { RequestWithUser } from '../auth/model/request-with-user';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Post()
-  async createUser(@Body() newUser: User, @Headers('authorization') authHeader: string) {
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    //console.log("Received from Frontend:", newUser);
-    //return this.userService.createUser(newUser, token);
-    if (!token) {
-      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    }
-    //return this.userService.createUser(newUser, token);
-    const updatedUser = await this.userService.createUser(newUser, token);
-    return updatedUser;
+@Auth()
+@Post()
+
+async createUser(@Body() newUser, @Req() request : RequestWithUser) {
+    const uid = request.user.uid;
+    const email = request.user.email;
+    const resCreate = await this.userService.createUser(newUser, uid, email);
+    return HttpStatus.CREATED; //status code 201
+    // return resCreate;
   }
 
-  @Get('/me')
-  async getUser(@Headers('authorization') authHeader: string) {
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    if (!token) {
-      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    }
-    //return this.userService.getUser(token);
-    const user = await this.userService.getUser(token);
-    return user;
+@Get('/me')
+async getUser(@Req() request : RequestWithUser) {
+    const uid = request.user.uid;
+    const retour = await this.userService.getUser(uid);
+    return retour;
   }
 }
+
