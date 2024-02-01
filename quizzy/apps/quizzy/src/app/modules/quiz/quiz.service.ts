@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Answer, Question, Quiz } from './model/quiz';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 import * as admin from 'firebase-admin';
@@ -60,20 +60,18 @@ export class QuizService {
 
             const questionIds = documentData.data()['questions'];
 
-            const questionsPromises = questionIds.map(async questionId => {
+            const questionsPromises = questionIds.map(async (questionId: string) => {
                 const questionDocumentInfo = await this.fa.firestore.collection('questions').doc(questionId).get();
                 if (questionDocumentInfo.exists) {
                     const currQuestionObj = new Question();
                     currQuestionObj.title = questionDocumentInfo.data()['title'];
 
-                    const answers = questionDocumentInfo.data()['answers'].map(answer => {
-                        const currAnswerObj = new Answer();
-                        currAnswerObj.title = answer.title;
-                        currAnswerObj.isCorrect = answer.isCorrect;
-                        return currAnswerObj;
+                  currQuestionObj.answers = questionDocumentInfo.data()['answers'].map((answer: { title: string; isCorrect: boolean; }) => {
+                      const currAnswerObj = new Answer();
+                      currAnswerObj.title = answer.title;
+                      currAnswerObj.isCorrect = answer.isCorrect;
+                      return currAnswerObj;
                     });
-
-                    currQuestionObj.answers = answers;
                     return currQuestionObj;
                 }
                 return null;
