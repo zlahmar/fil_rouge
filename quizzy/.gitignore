@@ -42,3 +42,4 @@ Thumbs.db
 /apps/quizzy/src/assets/quizzy-*.json
 
 .nx/cache
+.vscode
