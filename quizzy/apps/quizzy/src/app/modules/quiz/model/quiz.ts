@@ -16,6 +16,10 @@ export class Quiz {
 export class Question {
     @IsNotEmpty()
     @IsString()
+    id: string;
+    
+    @IsNotEmpty()
+    @IsString()
     title: string;
 
     @IsArray()
