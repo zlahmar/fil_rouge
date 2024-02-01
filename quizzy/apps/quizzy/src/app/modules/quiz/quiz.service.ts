@@ -37,9 +37,13 @@ export class QuizService {
                 quizObj.id = element.id;
                 quizObj.title = element.data()['title'];
                 quizObj.description = element.data()['description'];
+                quizObj._links = {
+                    'start': apiUrl + '/quiz/' + element.id + '/start',
+                    'create': apiUrl + "/quiz",
+                }
                 quizzes.push(quizObj);
             });
-            return { "data": quizzes, "_links": { "create": apiUrl + "/quiz" } };
+            return { "data": quizzes };
         } catch (error) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
@@ -66,11 +70,11 @@ export class QuizService {
                     const currQuestionObj = new Question();
                     currQuestionObj.title = questionDocumentInfo.data()['title'];
 
-                  currQuestionObj.answers = questionDocumentInfo.data()['answers'].map((answer: { title: string; isCorrect: boolean; }) => {
-                      const currAnswerObj = new Answer();
-                      currAnswerObj.title = answer.title;
-                      currAnswerObj.isCorrect = answer.isCorrect;
-                      return currAnswerObj;
+                    currQuestionObj.answers = questionDocumentInfo.data()['answers'].map((answer: { title: string; isCorrect: boolean; }) => {
+                        const currAnswerObj = new Answer();
+                        currAnswerObj.title = answer.title;
+                        currAnswerObj.isCorrect = answer.isCorrect;
+                        return currAnswerObj;
                     });
                     return currQuestionObj;
                 }
@@ -109,7 +113,7 @@ export class QuizService {
                             console.log("resUpdate: ", resUpdate);
                     }
                 }
-              return true;
+                return true;
             }
         } catch (error) {
             console.log("SERVICE ERROR: ", error);
