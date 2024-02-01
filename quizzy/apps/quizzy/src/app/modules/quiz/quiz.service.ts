@@ -94,7 +94,7 @@ export class QuizService {
         try {
             console.log("update_data: ", data);
             if (data) {
-                data.forEach(async element => {
+                for (const element of data) {
                     const cleanPath = element['path'].startsWith('/') ? element['path'].slice(1) : element['path'];
                     const documentData = await this.fa.firestore.collection('quiz').doc(quizId).get();
 
@@ -108,8 +108,8 @@ export class QuizService {
                             const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({ [cleanPath]: element['value'] });
                             console.log("resUpdate: ", resUpdate);
                     }
-                });
-                return true;
+                }
+              return true;
             }
         } catch (error) {
             console.log("SERVICE ERROR: ", error);
