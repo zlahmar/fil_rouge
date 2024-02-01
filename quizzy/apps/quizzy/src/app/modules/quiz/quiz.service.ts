@@ -94,7 +94,7 @@ export class QuizService {
         try {
             console.log("update_data: ", data);
             if (data) {
-                for (const element of data) {
+              for (const element of data) {
                     const cleanPath = element['path'].startsWith('/') ? element['path'].slice(1) : element['path'];
                     const documentData = await this.fa.firestore.collection('quiz').doc(quizId).get();
 
@@ -117,7 +117,7 @@ export class QuizService {
         }
     }
 
-    async createQuestion(quizId: string, data, uidUser: string): Promise<boolean> {
+    async createQuestion(quizId: string, data: Question, uidUser: string): Promise<boolean> {
         try {
             const quizInfo = await this.fa.firestore.collection('quiz').doc(quizId).get();
             if (quizInfo.data()['uid'] != uidUser) {
