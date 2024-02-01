@@ -7,6 +7,8 @@ import { title } from 'process';
 @Injectable()
 export class QuizService {
     listQuiz = []
+
+
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
 
     async create(newQuiz : Quiz, uidUser:string): Promise<any>{

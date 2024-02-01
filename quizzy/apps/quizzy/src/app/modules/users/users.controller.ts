@@ -1,11 +1,9 @@
-import { Controller, Post, Get, Req, Body, Headers, HttpException, HttpStatus } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { Auth } from '../auth/auth.decorator';
-import { RequestWithUser } from '../auth/model/request-with-user';
+
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
+
 
 @Auth()
 @Post()

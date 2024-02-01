@@ -1,3 +1,4 @@
+
 import { IsBoolean, IsNotEmpty, IsString, ValidateNested, IsArray, MinLength, ArrayMinSize, ArrayUnique } from 'class-validator';
 import { Type } from 'class-transformer';
 export class Quiz {

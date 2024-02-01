@@ -1,9 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 
+
 @Injectable()
 export class UsersService {
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
+
 
     async createUser(newUser, uidUser:string, emailUser:string): Promise<void> {
         if (!newUser || !newUser.username) {
