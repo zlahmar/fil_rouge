@@ -38,4 +38,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# API Key
+/apps/quizzy/src/assets/quizzy-*.json
+
 .nx/cache

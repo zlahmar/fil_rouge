@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FirebaseModule } from 'nestjs-firebase';
@@ -11,6 +12,9 @@ import { PingModule } from './modules/ping/ping.module';
   imports: [
     FirebaseModule.forRoot({  
       googleApplicationCredential: 'apps/quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-72962ed00c.json',
+import { AuthMiddleware } from './modules/auth/auth.middleware';
+
+
     }),
     UsersModule,
     AuthModule,
@@ -18,6 +22,12 @@ import { PingModule } from './modules/ping/ping.module';
     PingModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
-export class AppModule {}
+export class AppModule {
+  public configure(consumer: MiddlewareConsumer){
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
