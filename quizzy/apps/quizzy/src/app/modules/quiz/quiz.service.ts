@@ -34,11 +34,21 @@ export class QuizService {
             }
             documentData.docs.forEach(element => {
                 const quizObj = new Quiz();
+                var valid = true;
                 quizObj.id = element.id;
                 quizObj.title = element.data()['title'];
                 quizObj.description = element.data()['description'];
+                quizObj.questions.forEach(element => {
+                    if (element.title == "" || element.answers.length < 2 || element.answers.find) {
+                        valid = false
+                    }
+                });
+                if (quizObj.title == "" || quizObj.questions.length < 1) {
+                    valid = false
+                }
+
                 quizObj._links = {
-                    'start': apiUrl + '/quiz/' + element.id + '/start',
+                    'start': valid ? apiUrl + '/quiz/' + element.id + '/start' : '',
                     'create': apiUrl + "/quiz",
                 }
                 quizzes.push(quizObj);
