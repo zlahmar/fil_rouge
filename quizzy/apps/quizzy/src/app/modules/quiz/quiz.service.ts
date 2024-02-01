@@ -5,6 +5,7 @@ import * as admin from 'firebase-admin';
 
 @Injectable()
 export class QuizService {
+
     listQuiz = []
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) { }
 
@@ -160,5 +161,17 @@ export class QuizService {
         } catch (error) {
             throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
         }
+    }
+
+    startQuizz(quizId: string, uid: string) {
+        try {
+            var quizz = this.selectOne(quizId, uid)
+            if (false) {
+                throw Error('400')
+            }
+        } catch (error) {
+            throw error
+        }
+
     }
 }

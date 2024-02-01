@@ -101,5 +101,19 @@ export class QuizController {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @Post(':quizId/start')
+    async startQuizz(@Req() request: RequestWithUser, @Response() res: Res) {
+        const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+        try {
+            var response;
+            response.Headers['location'] = apiUrl + '/execution/' + request.params.quizId;
+            response.data = this.quizService.startQuizz(request.params.quizId, request.user.uid);
+            return response;
+        } catch (error) {
+            console.log("ERROR PATCH: ", error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
 }
 
