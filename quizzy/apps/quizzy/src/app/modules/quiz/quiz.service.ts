@@ -5,7 +5,7 @@ import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 @Injectable()
 export class QuizService {
     listQuiz = []
-    constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
+    constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) { }
 
     async create(newQuiz: Quiz, uidUser: string): Promise<any> {
         try {
@@ -15,7 +15,7 @@ export class QuizService {
                 title: newQuiz.title,
                 description: newQuiz.description,
             });
-            
+
             return String(quizDocRef.id);
 
         } catch (error) {
@@ -23,23 +23,38 @@ export class QuizService {
         }
     }
 
-    async selectAll(uidUser: string): Promise<any> {
+    async selectAll(uidUser: string): Promise<object> {
         try {
-            var quizzes = [];
+            const quizzes = [];
             const documentData = await this.fa.firestore.collection('quiz').where('uid', '==', uidUser).get();
+            const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
             if (documentData.empty) {
-                return { "data": [] };
+                return { "data": [], "_links": { "create": apiUrl + "/quiz" } };
             }
             documentData.docs.forEach(element => {
                 const quizObj = new Quiz();
+                var valid = true;
                 quizObj.id = element.id;
                 quizObj.title = element.data()['title'];
                 quizObj.description = element.data()['description'];
+                quizObj.questions.forEach(element => {
+                    if (element.title == "" || element.answers.length < 2 || element.answers.find) {
+                        valid = false
+                    }
+                });
+                if (quizObj.title == "" || quizObj.questions.length < 1) {
+                    valid = false
+                }
+
+                quizObj._links = {
+                    'start': valid ? apiUrl + '/quiz/' + element.id + '/start' : '',
+                    'create': apiUrl + "/quiz",
+                }
                 quizzes.push(quizObj);
             });
-            return { "data": quizzes, "_links": { "create": null } }; // links with issue 12
+            return { "data": quizzes };
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized get all quiz: ', error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -78,7 +93,7 @@ export class QuizService {
             const resUpdate = await quizReference.collection('questions').add(newQuestion);
             return resUpdate;
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized create question: ' , error);
+            throw new UnauthorizedException('Unauthorized create question: ', error);
         }
     }
 
@@ -128,7 +143,7 @@ export class QuizService {
             const questionRef = quizRef.collection('questions').doc(questionId).update(questionUpdated);
             if (!questionRef) {
                 throw new UnauthorizedException('Unauthorized Update this quiz.');
-            }else{
+            } else {
                 console.log("questionRef: ", questionRef);
                 return true;
             }
@@ -137,5 +152,17 @@ export class QuizService {
             console.log(error);
             throw new UnauthorizedException('Unauthorized Update this quiz: ', error);
         }
+    }
+
+    startQuizz(quizId: string, uid: string) {
+        try {
+            var quizz = this.getQuizById(quizId, uid)
+            if (false) {
+                throw Error('400')
+            }
+        } catch (error) {
+            throw error
+        }
+
     }
 }
