@@ -14,8 +14,7 @@ export class Quiz {
     questions: Question[];
   }
 export class Question {
-    @IsNotEmpty()
-    @IsString()
+
     id: string;
     
     @IsNotEmpty()
@@ -23,7 +22,6 @@ export class Question {
     title: string;
 
     @IsArray()
-    @ArrayMinSize(2)
     @ValidateNested({ each: true })
     @Type(() => Answer)
     answers: Answer[];
