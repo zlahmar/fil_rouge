@@ -43,6 +43,7 @@ export class QuizService {
         }
     }
 
+    
     async updateQuiz(quizId: string, data, uidUser: string): Promise<any> {
         try {
             console.log("update_data: ", data);
@@ -138,4 +139,17 @@ export class QuizService {
             throw new UnauthorizedException('Unauthorized Update this quiz: ', error);
         }
     }
+    startQuizz(quizId: string, uid: string) {
+        try {
+            var quizz = this.getQuizById(quizId, uid)
+            if (false) {
+                throw Error('400')
+            }
+        } catch (error) {
+            throw error
+        }
+
+    }
+
+
 }

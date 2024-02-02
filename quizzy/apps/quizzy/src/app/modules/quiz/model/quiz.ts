@@ -1,18 +1,20 @@
-import { IsBoolean, IsNotEmpty, IsString, ValidateNested, IsArray, MinLength, ArrayMinSize, ArrayUnique } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, ValidateNested, IsArray, MinLength, ArrayMinSize, ArrayUnique, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 export class Quiz {
-    @IsNotEmpty()
-    @IsString()
-    id: string;
-    @IsNotEmpty()
-    @IsString()
-    title: string;
-    @IsString()
-    description: string;
-    @IsArray()
-    @Type(() => Question)
-    questions: Question[];
-  }
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+  @IsString()
+  description: string;
+  @IsArray()
+  @Type(() => Question)
+  questions: Question[];
+  @IsObject()
+  _links: object;
+}
 export class Question {
 
     id: string;
