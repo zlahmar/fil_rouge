@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["node"],
+    "types": ["node","class-transformer", "class-validator"],
     "emitDecoratorMetadata": true,
     "target": "es2021"
   },
