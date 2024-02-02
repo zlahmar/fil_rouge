@@ -13,7 +13,7 @@ export class QuizController {
 
     @Auth()
     @Post()
-    async createQuiz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser){
+    async createQuiz(@Body() newQuizz, @Response() res: Res, @Req() request: RequestWithUser) {
         try {
             const uid = request.user.uid;
             const resQuiz = await this.quizzService.create(newQuizz, uid);
@@ -32,10 +32,10 @@ export class QuizController {
     }
 
     @Get()
-    getAllQuiz(@Req() request : RequestWithUser, @Headers('authorization') authHeader: string) {
+    getAllQuiz(@Req() request: RequestWithUser, @Headers('authorization') authHeader: string) {
         const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-        console.log("token: ",token)
-        console.log("allquizz: ",request)
+        console.log("token: ", token)
+        console.log("allquizz: ", request)
         try {
             const uid = request.user.uid;
             const listeQuiz = this.quizzService.selectAll(uid);
@@ -63,20 +63,20 @@ export class QuizController {
             } else {
                 throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
             }
-        }    
+        }
     }
 
     @Post(':quizId/questions')
-    async createQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
+    async createQuestion(@Req() request: RequestWithUser, @Response() res: Res) {
         try {
             const uid = request.user.uid;
             const newQuestion = plainToClass(Question, request.body);
             await validateOrReject(newQuestion);
 
-            const resCreate = await this.quizzService.createQuestion(request.params.quizId,request.body, uid);
+            const resCreate = await this.quizzService.createQuestion(request.params.quizId, request.body, uid);
             if (resCreate) {
-                return res.setHeader('Location', 'http://localhost:3000/api/quiz/' + request.params.quizId +"/questions/"+ resCreate.id).json();
-            }else{
+                return res.setHeader('Location', 'http://localhost:3000/api/quiz/' + request.params.quizId + "/questions/" + resCreate.id).json();
+            } else {
                 throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
             }
         } catch (error) {
@@ -100,16 +100,16 @@ export class QuizController {
     }
 
     @Put(':quizId/questions/:questionId')
-    async updateQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
+    async updateQuestion(@Req() request: RequestWithUser, @Response() res: Res) {
         try {
             const uid = request.user.uid;
             const newQuestion = plainToClass(Question, request.body);
             await validateOrReject(newQuestion);
 
-            const resUpdate = await this.quizzService.updateQuestion(request.params.quizId,request.params.questionId,request.body, uid);
+            const resUpdate = await this.quizzService.updateQuestion(request.params.quizId, request.params.questionId, request.body, uid);
             if (resUpdate) {
                 return res.sendStatus(204);
-            }else{
+            } else {
                 throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
             }
         } catch (error) {
@@ -117,5 +117,20 @@ export class QuizController {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+    @Post(':quizId/start')
+    async startQuizz(@Req() request: RequestWithUser, @Response() res: Res) {
+        const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+        try {
+            var response;
+            response.Headers['location'] = apiUrl + '/execution/' + request.params.quizId;
+            response.data = this.quizzService.startQuizz(request.params.quizId, request.user.uid);
+            return response;
+        } catch (error) {
+            console.log("ERROR PATCH: ", error);
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
 }
 
