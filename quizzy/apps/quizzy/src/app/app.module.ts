@@ -7,12 +7,12 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { PingModule } from './modules/ping/ping.module';
+import { AuthMiddleware } from './modules/auth/auth.middleware';
 
 @Module({
   imports: [
     FirebaseModule.forRoot({  
-      googleApplicationCredential: 'apps/quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-72962ed00c.json',
-import { AuthMiddleware } from './modules/auth/auth.middleware';
+      googleApplicationCredential: 'quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-72962ed00c.json',
 
 
     }),

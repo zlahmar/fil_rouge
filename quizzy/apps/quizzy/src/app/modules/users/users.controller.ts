@@ -1,3 +1,7 @@
+import { Body, Controller, Get, HttpStatus, Post, Req } from "@nestjs/common";
+import { Auth } from "../auth/auth.decorator";
+import { UsersService } from "./users.service";
+import { RequestWithUser } from "../auth/model/request-with-user";
 
 
 @Controller('users')

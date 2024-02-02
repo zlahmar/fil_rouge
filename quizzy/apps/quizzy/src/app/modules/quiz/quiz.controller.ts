@@ -11,7 +11,6 @@ export class QuizController {
     constructor(private readonly quizzService: QuizService) { }
 
     @Auth()
-
     @Post()
     async createQuizz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser){
         try {
@@ -23,9 +22,11 @@ export class QuizController {
             }
             const urlCreate = "http://localhost:3000/api/quiz/" + resQuiz;
             console.log("urlCreate: ", urlCreate);
+            
             return res.set({ 'Location': urlCreate }).json();
 
         } catch (error) {
+            console.log(error);
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
@@ -91,7 +92,7 @@ export class QuizController {
         }
     }
 
-    @Put(':quizId/questions:questionId')
+    @Put(':quizId/questions/:questionId')
     async updateQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
         try {
             const uid = request.user.uid;
