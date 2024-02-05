@@ -1,4 +1,3 @@
-
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,6 +12,7 @@ import { AuthMiddleware } from './modules/auth/auth.middleware';
   imports: [
     FirebaseModule.forRoot({  
       googleApplicationCredential: 'quizzy/src/assets/quizzy-12a74-firebase-adminsdk-vulpk-72962ed00c.json',
+
 
 
     }),

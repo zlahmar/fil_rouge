@@ -1,17 +1,15 @@
-import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Answer, Question, Quiz } from './model/quiz';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 import * as admin from 'firebase-admin';
-import { title } from 'process';
 
 @Injectable()
 export class QuizService {
+
     listQuiz = []
+    constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) { }
 
-
-    constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
-
-    async create(newQuiz : Quiz, uidUser:string): Promise<any>{
+    async create(newQuiz: Quiz, uidUser: string): Promise<string> {
         try {
             console.log("quiz: ", newQuiz);
             const documentData = await this.fa.firestore.collection('quiz').add({
@@ -27,152 +25,124 @@ export class QuizService {
         }
     }
 
-    async selectAll(uidUser:string): Promise<any>{
+    async selectAll(uidUser: string): Promise<object> {
         try {
-            var quizzes = [];
+            const quizzes = [];
             const documentData = await this.fa.firestore.collection('quiz').where('uid', '==', uidUser).get();
-            if(documentData.empty){
-                return {"data": []};
+            const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+            if (documentData.empty) {
+                return { "data": [], "_links": { "create": apiUrl + "/quiz" } };
             }
             documentData.docs.forEach(element => {
                 const quizObj = new Quiz();
+                var valid = true;
                 quizObj.id = element.id;
                 quizObj.title = element.data()['title'];
                 quizObj.description = element.data()['description'];
+                quizObj.questions.forEach(element => {
+                    if (element.title == "" || element.answers.length < 2 || element.answers.find) {
+                        valid = false
+                    }
+                });
+                if (quizObj.title == "" || quizObj.questions.length < 1) {
+                    valid = false
+                }
+
+                quizObj._links = {
+                    'start': valid ? apiUrl + '/quiz/' + element.id + '/start' : '',
+                    'create': apiUrl + "/quiz",
+                }
                 quizzes.push(quizObj);
-                // quizzes = [...quizzes, {"id": element.id, 
-                //                         "title": element.data()['title'],
-                //                         "description": element.data()['description']}];
             });
-            return {"data": quizzes, "_links": {"create": null}}; // links with issue 12
+            return { "data": quizzes };
         } catch (error) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
 
-    // async selectOne(quizId : string, uidUser:string): Promise<any>{
-    //     try {
-    //         const documentData = await this.fa.firestore.collection('quiz').doc(quizId).get();
-    //         if (!documentData.exists || documentData.data()['uid'] != uidUser){
-    //             return new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    //         }
 
-    //         const quizObj = new Quiz();
-    //         quizObj.id = documentData.id;
-    //         quizObj.title = documentData.data()['title'];
-    //         quizObj.description = documentData.data()['description'];
-
-    //         var questionList = [];
-    //         documentData.data()['questions'].forEach(async questionId => {
-    //             const questionDocumentInfo = await this.fa.firestore.collection('questions').doc(questionId).get();
-    //             if (questionDocumentInfo.exists){
-    //                 const currQuestionObj = new Question();
-    //                 currQuestionObj.title = questionDocumentInfo.data()['title'];
-
-    //                 var answersList = [];
-    //                 questionDocumentInfo.data()['answers'].forEach(answer => {
-    //                     const currAnswersObj = new Answer();
-    //                     currAnswersObj.title = answer.title;
-    //                     currAnswersObj.isCorrect = answer.isCorrect;
-    //                     answersList.push(currAnswersObj);
-    //                 });
-    //                 console.log("answersList: ",answersList)
-    //                 currQuestionObj.answers = answersList;
-    //                 questionList.push(currQuestionObj);
-    //             }
-    //         });
-    //         quizObj.questions = questionList;
-    //         console.log("quizObj: ", quizObj);
-
-    //         return quizObj;
-    //     } catch (error) {
-    //         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    //     }
-
-    // }
-
-    async selectOne(quizId: string, uidUser: string): Promise<any> {
+    async selectOne(quizId: string, uidUser: string): Promise<object> {
         try {
             const documentData = await this.fa.firestore.collection('quiz').doc(quizId).get();
             if (!documentData.exists || documentData.data()['uid'] != uidUser) {
                 return new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
             }
-    
+
             const quizObj = new Quiz();
             quizObj.id = documentData.id;
             quizObj.title = documentData.data()['title'];
             quizObj.description = documentData.data()['description'];
-    
+
             const questionIds = documentData.data()['questions'];
-    
-            const questionsPromises = questionIds.map(async questionId => {
+
+            const questionsPromises = questionIds.map(async (questionId: string) => {
                 const questionDocumentInfo = await this.fa.firestore.collection('questions').doc(questionId).get();
                 if (questionDocumentInfo.exists) {
                     const currQuestionObj = new Question();
                     currQuestionObj.title = questionDocumentInfo.data()['title'];
-    
-                    const answers = questionDocumentInfo.data()['answers'].map(answer => {
+
+                    currQuestionObj.answers = questionDocumentInfo.data()['answers'].map((answer: { title: string; isCorrect: boolean; }) => {
                         const currAnswerObj = new Answer();
                         currAnswerObj.title = answer.title;
                         currAnswerObj.isCorrect = answer.isCorrect;
                         return currAnswerObj;
                     });
-    
-                    currQuestionObj.answers = answers;
                     return currQuestionObj;
                 }
                 return null;
             });
-    
+
             // Attendre que toutes les promesses soient résolues
             const questionList = await Promise.all(questionsPromises);
             quizObj.questions = questionList.filter(q => q !== null);
-    
+
             console.log("quizObj: ", quizObj);
-    
+
             return quizObj;
         } catch (error) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
-    
 
-    async updateQuiz(quizId : string, data, uidUser:string): Promise<any>{
+
+    async updateQuiz(quizId: string, data, uidUser: string): Promise<boolean> {
         try {
             console.log("update_data: ", data);
-            if (data){
-                data.forEach(async element => {
+            if (data) {
+                for (const element of data) {
                     const cleanPath = element['path'].startsWith('/') ? element['path'].slice(1) : element['path'];
                     const documentData = await this.fa.firestore.collection('quiz').doc(quizId).get();
 
-                    if (documentData.data()['uid'] != uidUser){
-                        throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
+                    if (documentData.data()['uid'] != uidUser) {
+                        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
                     }
                     switch (element['op']) {
                         case 'replace':
                             console.log("replace");
-                            const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({[cleanPath]: element['value']});
+                            // eslint-disable-next-line no-case-declarations
+                            const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({ [cleanPath]: element['value'] });
                             console.log("resUpdate: ", resUpdate);
                     }
-                });
+                }
                 return true;
             }
         } catch (error) {
-            throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
+            console.log("SERVICE ERROR: ", error);
+            throw new HttpException('Not found', HttpStatus.NOT_FOUND);
         }
     }
-    
-    async createQuestion(quizId : string, data, uidUser:string): Promise<any>{
+
+    async createQuestion(quizId: string, data, uidUser: string): Promise<boolean> {
         try {
             const quizInfo = await this.fa.firestore.collection('quiz').doc(quizId).get();
-            if (quizInfo.data()['uid'] != uidUser){
+            if (quizInfo.data()['uid'] != uidUser) {
                 throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
             }
             const resultCreate = await this.fa.firestore.collection('questions').add({
                 title: data.title,
                 answers: data.answers
             });
-            const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({questions: admin.firestore.FieldValue.arrayUnion(resultCreate.id)});
+            const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({ questions: admin.firestore.FieldValue.arrayUnion(resultCreate.id) });
             console.log("resUpdate: ", resUpdate);
             return true;
         } catch (error) {
@@ -180,18 +150,28 @@ export class QuizService {
         }
     }
 
-    async updateQuestion(quizId : string, questionId : string, data, uidUser:string): Promise<any>{
+    async updateQuestion(quizId: string, questionId: string, data, uidUser: string): Promise<boolean> {
         try {
             const quizInfo = await this.fa.firestore.collection('quiz').doc(quizId).get();
-            if (quizInfo.data()['uid'] != uidUser){
+            if (quizInfo.data()['uid'] != uidUser) {
                 throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
             }
 
-            // const resUpdate = await this.fa.firestore.collection('quiz').doc(quizId).update({questions: admin.firestore.FieldValue.arrayRemove(data)});
-            // console.log("resUpdate: ", resUpdate);
             return true;
         } catch (error) {
             throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
         }
+    }
+
+    startQuizz(quizId: string, uid: string) {
+        try {
+            var quizz = this.selectOne(quizId, uid)
+            if (false) {
+                throw Error('400')
+            }
+        } catch (error) {
+            throw error
+        }
+
     }
 }
