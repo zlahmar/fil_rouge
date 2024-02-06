@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Inject, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { Answer, Question, Quiz } from './model/quiz';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 
@@ -37,12 +37,11 @@ export class QuizService {
                 quizObj.description = element.data()['description'];
                 quizzes.push(quizObj);
             });
-            return { "data": quizzes, "_links": { "create": null } }; // links with issue 12
+            return { "data": quizzes, "_links": { "create": null } };
         } catch (error) {
             throw new UnauthorizedException('Unauthorized get all quiz: ', error);
         }
     }
-
     
     async updateQuiz(quizId: string, data, uidUser: string): Promise<any> {
         try {
@@ -139,17 +138,57 @@ export class QuizService {
             throw new UnauthorizedException('Unauthorized Update this quiz: ', error);
         }
     }
-    startQuizz(quizId: string, uid: string) {
-        try {
-            var quizz = this.getQuizById(quizId, uid)
-            if (false) {
-                throw Error('400')
-            }
-        } catch (error) {
-            throw error
-        }
+    // startQuizz(quizId: string, uid: string) {
+    //     try {
+    //         var quizz = this.getQuizById(quizId, uid)
+    //         if (false) {
+    //             throw Error('400')
+    //         }
+    //     } catch (error) {
+    //         throw error
+    //     }
 
+    // }
+
+    private isQuizReadyToStart(quiz: Quiz): boolean {
+        if (!quiz.title || quiz.title.trim() === '') {
+            return false;
+        }
+        if (!quiz.questions || quiz.questions.length === 0) {
+            return false;
+        }
+        return true;
     }
 
+    async startQuizz(quizId: string, uid: string): Promise<string | void> {
+        try {
+            const quiz = await this.getQuizById(quizId, uid);
+    
+            if (!quiz) {
+                throw new UnauthorizedException('Unauthorized to start this quiz: ' + quizId);
+            }
+    
+            if (!this.isQuizReadyToStart(quiz)) {
+                throw new BadRequestException('Quiz is not ready to be started');
+            }
+    
+            // Générez l'ID d'exécution
+            const executionId = this.generateExecutionId();
+    
+            return executionId;
+    
+        } catch (error) {
+            throw new UnauthorizedException('Unauthorized to start quiz: ', error);
+        }
+    }
 
+    private generateExecutionId(): string {
+        const timestamp = new Date().getTime();
+        const randomId = Math.random().toString(36).substr(2, 6);
+        const executionId = `${timestamp}-${randomId}`;
+    
+        return executionId;
+    }
+    
 }
+
