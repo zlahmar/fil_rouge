@@ -17,23 +17,23 @@ export class Quiz {
 }
 export class Question {
 
-  id: string;
+    id: string;
+    
+    @IsNotEmpty()
+    @IsString()
+    title: string;
 
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Answer)
-  answers: Answer[];
-}
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => Answer)
+    answers: Answer[];
+  }
 export class Answer {
-  @IsNotEmpty()
-  @IsString()
-  title: string;
+    @IsNotEmpty()
+    @IsString()
+    title: string;
 
-  @IsNotEmpty()
-  @IsBoolean()
-  isCorrect: boolean;
-}
+    @IsNotEmpty()
+    @IsBoolean()
+    isCorrect: boolean;
+  }
