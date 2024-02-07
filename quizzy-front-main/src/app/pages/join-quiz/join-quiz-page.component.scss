@@ -1,0 +1,31 @@
+.join-quiz {
+  font-size: 1.6rem;
+  padding: 4rem;
+
+  display: flex;
+  flex-direction: column;
+
+  .question {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    &__title {
+      padding: 2rem 4rem;
+      border: 1px solid var(--color-primary);
+      border-radius: .5rem;
+      font-weight: bolder;
+        font-size: 2.5rem;
+    }
+
+    &__answers {
+      flex-grow: 1;
+    }
+
+    &__answer {
+      flex-grow:1;
+      padding: 2rem 4rem;
+      font-size: 2rem;
+    }
+  }
+}

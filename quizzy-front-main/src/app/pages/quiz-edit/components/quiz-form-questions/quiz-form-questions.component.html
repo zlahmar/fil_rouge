@@ -1,0 +1,22 @@
+<div class="questions">
+  <div class="questions__header">
+    <h3>{{ 'quizEditPage.questions.title' | translate }}</h3>
+    <button mat-raised-button color="primary" (click)="addQuestion()">{{'quizEditPage.questions.add'| translate}}</button>
+  </div>
+
+  <div class="questions__details">
+    @if (questions) {
+    @for (question of questions; track question.id) {
+      <qzy-quiz-form-question [question]="question" (updateQuestion)="updateQuestion($event)"></qzy-quiz-form-question>
+    } @empty {
+      <div class="info">
+        <h4>{{'quizEditPage.questions.empty' | translate}}</h4>
+      </div>
+    }
+    } @else {
+      <div class="alert">
+        <h4>{{'quizEditPage.questions.noQuestionReturned' | translate}}</h4>
+      </div>
+    }
+  </div>
+</div>

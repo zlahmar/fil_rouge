@@ -1,0 +1,7 @@
+<div class="quiz-form">
+  <mat-form-field>
+    <input matInput [value]="quiz.title" (change)="updateTitle($event)" />
+  </mat-form-field>
+
+  <qzy-quiz-form-questions [questions]="quiz.questions" [quizId]="quizId"></qzy-quiz-form-questions>
+</div>

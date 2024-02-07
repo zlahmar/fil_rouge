@@ -1,0 +1,8 @@
+<div class="new-quiz">
+  <button mat-raised-button color="primary" (click)="onCreateQuiz()">
+    {{ 'welcomePage.dashboard.createQuiz' | translate }}
+  </button>
+  @if (! quizzes.isCreateQuizLinkAvailable) {
+    <mat-icon color="warn" [matTooltip]="'welcomePage.dashboard.hateoas.createMissing' | translate">warning</mat-icon>
+  }
+</div>

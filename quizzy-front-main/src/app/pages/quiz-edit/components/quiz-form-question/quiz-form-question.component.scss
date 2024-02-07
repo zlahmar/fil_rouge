@@ -1,0 +1,30 @@
+.header {
+  height: 6rem;
+  padding: 2rem 2rem 1rem 2rem;
+  display:flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.question__title {
+  width: 70vw;
+}
+
+.question__answer {
+  display:flex;
+  align-items: center;
+
+  &-icon {
+    padding: 2rem;
+    font-weight: bolder;
+
+    & > * {
+      padding: .5rem;
+    }
+
+    &--correct {
+      background-color: var(--color-success-background);
+      border-radius: .5rem;
+    }
+  }
+}

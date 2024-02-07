@@ -1,0 +1,71 @@
+/* You can add global styles to this file, and also import other style files */
+
+* {
+  margin:0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+:root {
+
+  --color-primary : #3f51b5;
+  --color-paper-lighter: #f7f4e3;
+  --color-paper: #f2eecb;
+  --color-paper-darker: #e6e1b3;
+
+  --color-paper-complementary: #CBCFF2;
+  --color-paper-complementary-darker: #b3b3e6;
+
+  --color-text: #111;
+  --color-text-darker: #000;
+  --color-text-secondary : white;
+
+  --color-error: #9a1d1d;
+  --color-error-background: #ffb2b2;
+
+  --color-success-background: #63a163;
+  --color-success-border: #14a914;
+
+  --color-primary-background : #a4a8c0;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  height:100%;
+
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  height: 100%;
+}
+
+.form-error {
+  color: var(--color-error);
+  font-size: 1.2rem;
+}
+
+.alert {
+  font-size: 1.6rem;
+  padding: 2rem 4rem;
+  margin: 2rem 4rem;
+  text-align: center;
+  color: var(--color-error);
+  border: 1px solid currentColor;
+  border-radius: .5rem;
+  background-color: var(--color-error-background);
+}
+
+.info {
+  font-size: 1.6rem;
+  padding: 2rem 4rem;
+  margin: 2rem 4rem;
+  text-align: center;
+  color: var(--color-primary);
+  border: 1px solid currentColor;
+  border-radius: .5rem;
+  background-color: var(--color-primary-background);
+}

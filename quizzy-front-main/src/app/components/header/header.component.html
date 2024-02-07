@@ -1,0 +1,41 @@
+<header class="header">
+  <mat-toolbar color="primary" class="header__toolbar">
+    <div class="header__logo">
+      <a routerLink="/" title="Go home"><img src="/assets/logo.png" class="header__logo-img" alt="Quizzy logo" /></a>
+    </div>
+    <div><a routerLink="/" class="header__title" title="Go home">{{ 'appName' | translate }}</a></div>
+    <div class="header__placeholder">&nbsp;</div>
+    <div>
+      @if ((pingStatus$ | async); as pingStatus) {
+        @switch (pingStatus){
+          @case (PingStatus.KO) {
+            <mat-icon [matTooltip]="'header.statusTooltip.ko' | translate" class="header__status header__status--ko">error</mat-icon>
+          }
+          @case (PingStatus.Partial) {
+            <mat-icon [matTooltip]="'header.statusTooltip.partial' | translate" class="header__status header__status--partial">warning</mat-icon>
+          }
+          @case (PingStatus.Full) {
+            <mat-icon [matTooltip]="'header.statusTooltip.ok' | translate" class="header__status header__status--full">check_circle</mat-icon>
+          }
+        }
+      } @else {
+          <mat-icon [matTooltip]="'header.statusTooltip.pending' | translate" class="header__status header__status--unknown">pending</mat-icon>
+      }
+    </div>
+    @if(isLoggedIn$ | async) {
+      <div class="header__user">
+        <mat-icon class="header__user--icon" [matMenuTriggerFor]="menu">account_circle</mat-icon>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="logout()">Logout</button>
+        </mat-menu>
+        <div>
+        @if (userDetails$ | async; as user) {
+          {{user.username}}
+          } @else {
+          <div [matTooltip]="'header.userMissing' | translate"> ??? </div>
+          }
+        </div>
+      </div>
+    }
+  </mat-toolbar>
+</header>

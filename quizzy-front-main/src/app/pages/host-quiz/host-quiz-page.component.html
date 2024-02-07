@@ -1,0 +1,24 @@
+<div class="quiz-host">
+  <h2> Hosting quiz : @if (quiz) {
+    {{quiz.title}}
+  }</h2>
+
+  <div class="quiz-host__share">
+    Share the fun with code: <em>{{id}}</em>
+  </div>
+
+  <div class="quiz-host__status">
+    @if (currentStatus) {
+      <div> Status: {{currentStatus.status}}</div>
+      <div> Participants: {{currentStatus.participants}}</div>
+    } @else {
+      <div class="alert"> Status: Unknown</div>
+    }
+
+  </div>
+
+  <div class="quiz-host-start">
+    <button mat-raised-button color="primary" (click)="nextQuestion()">Next question</button>
+  </div>
+</div>
+

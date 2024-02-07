@@ -1,0 +1,67 @@
+
+<form [formGroup]="loginForm" (ngSubmit)="doLogin()">
+  <div class="login-form">
+    <h2>{{ 'loginPage.title' | translate }}</h2>
+    <div class="form-field">
+      <mat-form-field>
+      <input
+        matInput
+        name="email"
+        type="email"
+        formControlName="email"
+        [ngClass]="{ 'form-control--error': email.errors && email.touched }"
+        [placeholder]="'loginPage.email.placeholder' | translate"
+        required
+      />
+      </mat-form-field>
+      <div
+        *ngIf="email.errors?.['required'] && email.touched"
+        class="form-error"
+      >
+        {{ 'loginPage.email.error.required' | translate }}
+      </div>
+
+      <div *ngIf="email.errors?.['email'] && email.touched" class="form-error">
+        {{ 'loginPage.email.error.email' | translate }}
+      </div>
+    </div>
+    <div class="form-field">
+      <mat-form-field>
+      <input
+        matInput
+        class="form-control form-control--compact"
+        name="password"
+        [ngClass]="{
+          'form-control--error': password.errors && password.touched
+        }"
+        [placeholder]="'loginPage.password.placeholder' | translate"
+        type="password"
+        formControlName="password"
+        required
+      />
+      </mat-form-field>
+
+      <div
+        *ngIf="password.errors?.['required'] && password.touched"
+        class="form-error"
+      >
+        {{ 'loginPage.password.error.required' | translate }}
+      </div>
+    </div>
+    <div class="form-field">
+      <button
+        mat-raised-button color="primary"
+        [ngClass]="{ 'button--disabled': loginForm.invalid }"
+        type="submit"
+        [disabled]="loginForm.invalid"
+      >
+        {{'loginPage.button.label' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="not-registered">
+    <a routerLink="/register" class="register-link">
+      {{ 'loginPage.register.label' | translate }}
+    </a>
+  </div>
+</form>

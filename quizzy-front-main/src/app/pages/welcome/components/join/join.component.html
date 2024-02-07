@@ -1,0 +1,9 @@
+<div class="join">
+  <h2>{{'welcomePage.join.title' | translate}}</h2>
+  <form (ngSubmit)="join()">
+    <mat-form-field class="welcome__field">
+      <input matInput name="joinCode" id="joinCode" placeholder="{{'welcomePage.join.placeholder' | translate}}" [(ngModel)]="joinCode">
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit">{{'welcomePage.join.button' | translate}}</button>
+  </form>
+</div>

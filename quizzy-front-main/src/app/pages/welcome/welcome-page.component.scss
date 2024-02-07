@@ -1,0 +1,14 @@
+.welcome-page {
+  height: 100%;
+  padding: 5rem;
+
+  font-size: 1.6rem;
+
+  h1 {
+    text-align:center;
+  }
+
+  &__description {
+    text-align:center;
+  }
+}

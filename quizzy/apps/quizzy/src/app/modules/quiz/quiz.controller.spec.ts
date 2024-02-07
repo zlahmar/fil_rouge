@@ -86,6 +86,7 @@ describe('QuizController', () => {
       description: 'Mock Quiz Description',
       questions: [
         {
+          id: 'mockQuestionId',
           title: 'Mock Question',
           answers: [
             { title: 'Mock Answer 1', isCorrect: true },
@@ -93,6 +94,7 @@ describe('QuizController', () => {
           ],
         },
       ],
+      _links: undefined
     };
 
     const response = await request(app.getHttpServer())

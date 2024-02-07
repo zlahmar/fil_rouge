@@ -1,0 +1,14 @@
+<div class="welcome-page">
+  <h1>{{ 'welcomePage.title' | translate }}</h1>
+  <div class="welcome-page__description">
+    {{ 'welcomePage.description' | translate }}
+  </div>
+
+  <qzy-join></qzy-join>
+
+  @if (isLogged$ | async) {
+    <qzy-dashboard></qzy-dashboard>
+  } @else {
+    <qzy-not-logged></qzy-not-logged>
+  }
+</div>

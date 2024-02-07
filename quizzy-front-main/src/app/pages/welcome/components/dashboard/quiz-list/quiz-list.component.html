@@ -1,0 +1,21 @@
+<div class="quiz-list">
+  @if(quizzes.data.length > 0) {
+    <div class="quiz-list__header">
+      <div class="quiz-list__header__title">
+        {{ 'welcomePage.dashboard.list.title' | translate:{nb: quizzes.data.length} }}
+      </div>
+      <qzy-new-quiz-button [quizzes]="quizzes" (createQuiz)="onCreateQuiz()"></qzy-new-quiz-button>
+    </div>
+  }
+  @if (!quizzes.data.length) {
+        <div class="quiz-list__empty">
+      <div>
+        {{ 'welcomePage.dashboard.empty' | translate }}
+      </div>
+      <qzy-new-quiz-button [quizzes]="quizzes" (createQuiz)="onCreateQuiz()"></qzy-new-quiz-button>
+    </div>
+  } @else {
+    <qzy-quiz-list-table [quizzes]="quizzes.data" (startQuiz)="onStartQuiz($event)"></qzy-quiz-list-table>
+  }
+
+</div>

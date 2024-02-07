@@ -1,0 +1,18 @@
+<div class="quiz-edit">
+@if( quiz$ | async; as quizData ) {
+  @if (quizData.status === 'OK' && quizData.data) {
+    <qzy-quiz-form [quiz]="quizData.data" [quizId]="id"></qzy-quiz-form>
+  } @else if (quizData.status === 'NOT FOUND') {
+    <div class="alert alert-danger" role="alert">
+      {{ 'quizEditPage.notFound' | translate }}
+    </div>
+  } @else {
+    <div class="alert alert-danger" role="alert">
+      {{ 'quizEditPage.issue' | translate }}
+    </div>
+  }
+
+} @else {
+  Loading...
+}
+</div>

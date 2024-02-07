@@ -1,0 +1,127 @@
+<div class="register-page">
+  <div class="register-page__content">
+    <form [formGroup]="registerForm" (ngSubmit)="doRegister()">
+      <div class="register-form">
+        <h1>{{ 'registerPage.title' | translate }}</h1>
+        <div class="form-field">
+          <mat-form-field>
+            <input
+              matInput
+              class="form-control form-control--compact"
+              name="username"
+              type="text"
+              [ngClass]="{ 'form-control--error': username.errors && username.touched }"
+              formControlName="username"
+              [placeholder]="'registerPage.username.placeholder' | translate"
+              required
+            />
+          </mat-form-field>
+          <div
+            *ngIf="username.errors?.['required'] && username.touched"
+            class="form-error"
+          >
+            {{ 'registerPage.username.error.required' | translate }}
+          </div>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <input
+              matInput
+              class="form-control form-control--compact"
+              name="email"
+              type="email"
+              [ngClass]="{ 'form-control--error': email.errors && email.touched }"
+              formControlName="email"
+              [placeholder]="'registerPage.email.placeholder' | translate"
+              required
+            />
+          </mat-form-field>
+          <div
+            *ngIf="email.errors?.['required'] && email.touched"
+            class="form-error"
+          >
+            {{ 'registerPage.email.error.required' | translate }}
+          </div>
+          <div *ngIf="email.errors?.['email'] && email.touched" class="form-error">
+            {{ 'registerPage.email.error.email' | translate }}
+          </div>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <input
+              matInput
+              class="form-control form-control--compact"
+              name="password"
+              [ngClass]="{
+          'form-control--error': password.errors && password.touched
+        }"
+              [placeholder]="'registerPage.password.placeholder' | translate"
+              type="password"
+              formControlName="password"
+              required
+            />
+            <div
+              *ngIf="password.errors?.['required'] && password.touched"
+              class="form-error"
+            >
+              {{ 'registerPage.password.error.required' | translate }}
+            </div>
+            <div
+              *ngIf="password.errors?.['minlength'] && password.touched"
+              class="form-error"
+            >
+              {{ 'registerPage.password.error.minlength' | translate }}
+            </div>
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <input
+              matInput
+              class="form-control form-control--compact"
+              name="confirmPassword"
+              [ngClass]="{
+          'form-control--error':
+            confirmPassword.errors && confirmPassword.touched
+        }"
+              [placeholder]="'registerPage.confirmPassword.placeholder' | translate"
+              type="password"
+              formControlName="confirmPassword"
+              required
+            />
+            <div
+              *ngIf="confirmPassword.errors?.['required'] && confirmPassword.touched"
+              class="form-error"
+            >
+              {{ 'registerPage.confirmPassword.error.required' | translate }}
+            </div>
+            <div
+              *ngIf="registerForm.errors?.['mismatch'] && password.touched && confirmPassword.touched"
+              class="form-error"
+            >
+              {{ 'registerPage.error.passwordsDoNotMatch' | translate }}
+            </div>
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <button
+            mat-raised-button color="primary"
+            [ngClass]="{ 'button--disabled': registerForm.invalid }"
+            type="submit"
+            [disabled]="registerForm.invalid"
+          >
+            {{ 'registerPage.button.label' | translate }}
+          </button>
+        </div>
+      </div>
+      <div class="already-registered">
+        {{ 'registerPage.login.label' | translate }}
+        <a routerLink="/login" class="login-link">
+          {{ 'registerPage.login.link' | translate }}
+        </a>
+      </div>
+    </form>
+
+  </div>
+</div>
+

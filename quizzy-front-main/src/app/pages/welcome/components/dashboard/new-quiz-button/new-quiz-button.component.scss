@@ -1,0 +1,10 @@
+
+.new-quiz {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+
+  & > *:not(:last-child){
+    margin-right: 1rem;
+  }
+}
