@@ -148,6 +148,29 @@ export class QuizController {
     //     }
     // }
 
+    // async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
+    //     try {
+    //         const quizId = request.params.quizId;
+    //         const uid = request.user.uid;
+
+    //         //const quiz = await this.quizzService.getQuizById(quizId, uid);
+    //         const executionId = await this.quizzService.startQuizz(quizId, uid);
+
+    //         const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+    //         const executionUrl = `${apiUrl}/execution/${executionId}`;
+    
+    //         return res.location(executionUrl).status(HttpStatus.CREATED).send();
+    //     } catch (error) {
+    //         console.error('Error in startQuiz:', error);
+
+    //         if (error instanceof HttpException) {
+    //             throw error;
+    //         } else {
+    //             throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
+    //         }
+    //     }
+    // }
+
     async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
         try {
             const quizId = request.params.quizId;
@@ -158,8 +181,12 @@ export class QuizController {
 
             const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
             const executionUrl = `${apiUrl}/execution/${executionId}`;
+            console.log("executionUrl: ", executionUrl);
+            //console.log("res: ", res.location(executionUrl).status(HttpStatus.CREATED).send());
+
     
             return res.location(executionUrl).status(HttpStatus.CREATED).send();
+
         } catch (error) {
             console.error('Error in startQuiz:', error);
 

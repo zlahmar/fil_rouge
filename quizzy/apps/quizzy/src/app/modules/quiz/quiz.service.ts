@@ -9,7 +9,7 @@ export class QuizService {
 
     async create(newQuiz: Quiz, uidUser: string): Promise<any> {
         try {
-            console.log("quiz: ", newQuiz);
+            //console.log("quiz: ", newQuiz);
             const quizDocRef = await this.fa.firestore.collection('quiz').add({
                 uid: uidUser,
                 title: newQuiz.title,
@@ -19,10 +19,29 @@ export class QuizService {
             return String(quizDocRef.id);
 
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized Create new quiz: ', error);
+            throw new UnauthorizedException('Unauthorized to create new quiz: ', error);
         }
     }
 
+    // async selectAll(uidUser: string): Promise<any> {
+    //     try {
+    //         var quizzes = [];
+    //         const documentData = await this.fa.firestore.collection('quiz').where('uid', '==', uidUser).get();
+    //         if (documentData.empty) {
+    //             return { "data": [] };
+    //         }
+    //         documentData.docs.forEach(element => {
+    //             const quizObj = new Quiz();
+    //             quizObj.id = element.id;
+    //             quizObj.title = element.data()['title'];
+    //             quizObj.description = element.data()['description'];
+    //             quizzes.push(quizObj);
+    //         });
+    //         return { "data": quizzes, "_links": { "create": null } };
+    //     } catch (error) {
+    //         throw new UnauthorizedException('Unauthorized get all quiz: ', error);
+    //     }
+    // }
     async selectAll(uidUser: string): Promise<any> {
         try {
             var quizzes = [];
@@ -30,14 +49,28 @@ export class QuizService {
             if (documentData.empty) {
                 return { "data": [] };
             }
-            documentData.docs.forEach(element => {
+    
+            const quizPromises = documentData.docs.map(async (element) => {
                 const quizObj = new Quiz();
                 quizObj.id = element.id;
                 quizObj.title = element.data()['title'];
                 quizObj.description = element.data()['description'];
-                quizzes.push(quizObj);
+                console.log("quizObj: ", quizObj);
+
+                
+                const isReady = await this.isQuizReadyToStart(quizObj);
+    
+                return {
+                    ...quizObj,
+                    _links: {
+                        start: isReady ? `http://localhost:3000/api/quiz/${quizObj.id}/start` : null
+                    }
+                };
             });
-            return { "data": quizzes, "_links": { "create": null } };
+    
+            const quizzesWithLinks = await Promise.all(quizPromises);
+    
+            return { "data": quizzesWithLinks, "_links": { "create": null } };
         } catch (error) {
             throw new UnauthorizedException('Unauthorized get all quiz: ', error);
         }
@@ -64,7 +97,7 @@ export class QuizService {
                 return true;
             }
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized update quiz: ', error);
+            throw new UnauthorizedException('Unauthorized to update the quiz: ', error);
         }
     }
 
@@ -150,14 +183,49 @@ export class QuizService {
 
     // }
 
-    private isQuizReadyToStart(quiz: Quiz): boolean {
-        if (!quiz.title || quiz.title.trim() === '') {
-            return false;
+    private async isQuizReadyToStart(quiz: Quiz): Promise<boolean> {
+        try {
+            const questionsSnapshot = await this.fa.firestore.collection('quiz').doc(quiz.id).collection('questions').get();
+
+            const questions = questionsSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: data['title'],
+                    answers: data['answers'],
+                    // Autres propriétés de la question
+                };
+            });
+    
+            if (!quiz.title || quiz.title.trim() === '') {
+                console.log("Quiz title is empty");
+                return false;
+            }
+    
+            if (!questions || questions.length === 0) {
+                console.log("No questions found");
+                return false;
+            }
+    
+            for (const question of questions) {
+                if (!question || question.title.trim() === '') {
+                    console.log("Question title is empty");
+                    return false;
+                }2
+    
+                if (!question.answers || question.answers.length20< 2) {
+                    console.log("Not enough answers");
+                    return false;
+                }
+    
+               
+            }
+    
+            return true;
+        } catch (error) {
+            console.error("Error in isQuizReadyToStart:", error);
+            return false; // En cas d'erreur, considérez que le quiz n'est pas prêt
         }
-        if (!quiz.questions || quiz.questions.length === 0) {
-            return false;
-        }
-        return true;
     }
 
     async startQuizz(quizId: string, uid: string): Promise<string | void> {
