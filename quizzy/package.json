@@ -17,6 +17,8 @@
     "nestjs-firebase": "^10.3.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

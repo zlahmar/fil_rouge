@@ -11,7 +11,7 @@ import { AuthMiddleware } from './modules/auth/auth.middleware';
 @Module({
   imports: [
     FirebaseModule.forRoot({  
-      googleApplicationCredential:'apps/quizzy/src/assets/quizzy-firebase.json',///Users/quentin/webservice_ynov/fil_rouge/quizzy/apps/quizzy/src/assets/quizzy-firebase-adminsdk.json'
+      googleApplicationCredential:'apps/quizzy/src/assets/quizzy-firebase.json',//'/Users/quentin/webservice_ynov/fil_rouge/quizzy/apps/quizzy/src/assets/quizzy-firebase-adminsdk.json'
     }),
     UsersModule,
     AuthModule,
