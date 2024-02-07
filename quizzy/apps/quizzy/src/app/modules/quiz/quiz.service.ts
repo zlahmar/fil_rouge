@@ -12,12 +12,12 @@ export class QuizService {
 
     async createQuiz(theNewQuiz: CreateQuizDTO, uidUser: string): Promise<any> {
         try {
-            console.log("quiz: ", theNewQuiz);
+            // console.log("quiz: ", theNewQuiz);
             theNewQuiz.uid = uidUser;
             const quizDocRef = await this.fa.firestore.collection('quiz').add(theNewQuiz);
 
-            const urlCreate = "http://localhost:3000/api/quiz/" + quizDocRef.id;
-            console.log("urlCreate: ", urlCreate);
+            const urlCreate = process.env.API_BASE_URL+ "/quiz/" + quizDocRef.id;
+            // console.log("urlCreate: ", urlCreate);
 
             return urlCreate;
 
@@ -38,8 +38,8 @@ export class QuizService {
                 quizObj.description = element.data()['description'];
                 quizzes.push(quizObj);
             });
-            console.log("quizzes: ", quizzes);
-            return { "data": quizzes, "_links": { "create": null } }; // links with issue 12
+            // console.log("quizzes: ", quizzes);
+            return { "data": quizzes, "_links": { "create": process.env.API_BASE_URL + "/quiz" } };
 
         } catch (error) {
             throw new UnauthorizedException('Unauthorized get all quiz: ', error);
