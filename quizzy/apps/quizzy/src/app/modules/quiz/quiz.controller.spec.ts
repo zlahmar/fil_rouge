@@ -46,7 +46,7 @@ describe('QuizController', () => {
   });
 
   it('should create a new quiz', async () => {
-    // Mock the QuizService.create method
+ 
     const createdQuizId = 'mockQuizId';
     mockUserService.create.mockReturnValueOnce(createdQuizId);
 
@@ -83,6 +83,5 @@ describe('QuizController', () => {
     expect(response).toBeDefined();
   });
 
-  // Add more tests for other QuizController methods
 
 });
