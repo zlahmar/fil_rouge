@@ -29,11 +29,30 @@ export class QuizController {
                 throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
             }
 
+            // const urlCreate = "http://localhost:3000/api/quiz/" + resQuiz;
+            // console.log("urlCreate: ", urlCreate);
+
+            // //lien HATEOAS 'create' à la réponse
+            // const response = {
+            //     data: [{ id: resQuiz }],
+            //     _links: { create: `http://localhost:3000/api/quiz` },
+            // };
+
+            const urlCreate = `http://localhost:3000/api/quiz/${resQuiz}`;
+
+            const quizzes = await this.quizzService.selectAll(uid);
+
+            // lien HATEOAS 'create' à la réponse
+            const response = {
+                data: quizzes.data,
+                _links: { create: `http://localhost:3000/api/quiz` },
+            };
+
             return res.set({ 'Location': resultCreateQuiz }).json();
 
         } catch (error) {
-            console.log("Error Create Quiz => ", error);
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
+            throw new HttpException('Unauthorized to create the quiz', HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -46,8 +65,8 @@ export class QuizController {
             return listeQuiz;
 
         } catch (error) {
-            console.log("Error Get All Quiz => ", error);
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
+            throw new HttpException('Unauthorized to get all Quiz', HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -69,6 +88,7 @@ export class QuizController {
             console.log("ERROR Patch: ", error);
             throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
         }
+
     }
 
     @Post(':quizId/questions')
@@ -89,7 +109,7 @@ export class QuizController {
             }
         } catch (error) {
             console.log("ERROR Post: ", error);
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Unauthorized to create the question', HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -103,7 +123,7 @@ export class QuizController {
 
             return theQuiz;
         } catch (error) {
-            throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
+            throw new HttpException('Unauthorized to get the quiz', HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -125,7 +145,71 @@ export class QuizController {
             }
         } catch (error) {
             console.log("ERROR PUT: ", error);
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Unauthorized to update question', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Post(':quizId/start')
+    // async startQuizz(@Req() request: RequestWithUser, @Response() res: Res) {
+    //     const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+    //     try {
+    //         var response;
+    //         response.Headers['location'] = apiUrl + '/execution/' + request.params.quizId;
+    //         response.data = this.quizzService.startQuizz(request.params.quizId, request.user.uid);
+    //         return response;
+    //     } catch (error) {
+    //         console.log("ERROR PATCH: ", error);
+    //         throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
+    //     }
+    // }
+
+    // async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
+    //     try {
+    //         const quizId = request.params.quizId;
+    //         const uid = request.user.uid;
+
+    //         //const quiz = await this.quizzService.getQuizById(quizId, uid);
+    //         const executionId = await this.quizzService.startQuizz(quizId, uid);
+
+    //         const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+    //         const executionUrl = `${apiUrl}/execution/${executionId}`;
+    
+    //         return res.location(executionUrl).status(HttpStatus.CREATED).send();
+    //     } catch (error) {
+    //         console.error('Error in startQuiz:', error);
+
+    //         if (error instanceof HttpException) {
+    //             throw error;
+    //         } else {
+    //             throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
+    //         }
+    //     }
+    // }
+
+    async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
+        try {
+            const quizId = request.params.quizId;
+            const uid = request.user.uid;
+
+            //const quiz = await this.quizzService.getQuizById(quizId, uid);
+            const executionId = await this.quizzService.startQuizz(quizId, uid);
+
+            const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+            const executionUrl = `${apiUrl}/execution/${executionId}`;
+            console.log("executionUrl: ", executionUrl);
+            //console.log("res: ", res.location(executionUrl).status(HttpStatus.CREATED).send());
+
+    
+            return res.location(executionUrl).status(HttpStatus.CREATED).send();
+
+        } catch (error) {
+            console.error('Error in startQuiz:', error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            } else {
+                throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
+            }
         }
     }
 }

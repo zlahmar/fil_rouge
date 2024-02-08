@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Inject, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { Answer, Question, Quiz } from './model/quiz';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
 import { CreateQuizDTO } from './model/QuizDTO';
@@ -22,7 +22,7 @@ export class QuizService {
             return urlCreate;
 
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized Create new quiz: ', error);
+            throw new UnauthorizedException('Unauthorized to create new quiz: ', error);
         }
     }
 
@@ -35,11 +35,24 @@ export class QuizService {
             }
             documentData.docs.forEach(element => {
                 const quizObj = new Quiz(element.id, element.data()['title']);
+
                 quizObj.description = element.data()['description'];
-                quizzes.push(quizObj);
+                console.log("quizObj: ", quizObj);
+
+                
+                const isReady = await this.isQuizReadyToStart(quizObj);
+    
+                return {
+                    ...quizObj,
+                    _links: {
+                        start: isReady ? `http://localhost:3000/api/quiz/${quizObj.id}/start` : null
+                    }
+                };
             });
             // console.log("quizzes: ", quizzes);
+            const quizzesWithLinks = await Promise.all(quizPromises);
             return { "data": quizzes, "_links": { "create": process.env.API_BASE_URL + "/quiz" } };
+
 
         } catch (error) {
             throw new UnauthorizedException('Unauthorized get all quiz: ', error);
@@ -68,7 +81,8 @@ export class QuizService {
             return true;
 
         } catch (error) {
-            throw new UnauthorizedException('Unauthorized Patch this quiz: ', error);
+
+            throw new UnauthorizedException('Unauthorized to update the quiz: ', error);
         }
     }
 
@@ -139,4 +153,92 @@ export class QuizService {
             throw new UnauthorizedException('Unauthorized Update this question: ', error);
         }
     }
+    // startQuizz(quizId: string, uid: string) {
+    //     try {
+    //         var quizz = this.getQuizById(quizId, uid)
+    //         if (false) {
+    //             throw Error('400')
+    //         }
+    //     } catch (error) {
+    //         throw error
+    //     }
+
+    // }
+
+    private async isQuizReadyToStart(quiz: Quiz): Promise<boolean> {
+        try {
+            const questionsSnapshot = await this.fa.firestore.collection('quiz').doc(quiz.id).collection('questions').get();
+
+            const questions = questionsSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: data['title'],
+                    answers: data['answers'],
+                    // Autres propriétés de la question
+                };
+            });
+    
+            if (!quiz.title || quiz.title.trim() === '') {
+                console.log("Quiz title is empty");
+                return false;
+            }
+    
+            if (!questions || questions.length === 0) {
+                console.log("No questions found");
+                return false;
+            }
+    
+            for (const question of questions) {
+                if (!question || question.title.trim() === '') {
+                    console.log("Question title is empty");
+                    return false;
+                }2
+    
+                if (!question.answers || question.answers.length20< 2) {
+                    console.log("Not enough answers");
+                    return false;
+                }
+    
+               
+            }
+    
+            return true;
+        } catch (error) {
+            console.error("Error in isQuizReadyToStart:", error);
+            return false; // En cas d'erreur, considérez que le quiz n'est pas prêt
+        }
+    }
+
+    async startQuizz(quizId: string, uid: string): Promise<string | void> {
+        try {
+            const quiz = await this.getQuizById(quizId, uid);
+    
+            if (!quiz) {
+                throw new UnauthorizedException('Unauthorized to start this quiz: ' + quizId);
+            }
+    
+            if (!this.isQuizReadyToStart(quiz)) {
+                throw new BadRequestException('Quiz is not ready to be started');
+            }
+    
+            // Générez l'ID d'exécution
+            const executionId = this.generateExecutionId();
+    
+            return executionId;
+    
+        } catch (error) {
+            throw new UnauthorizedException('Unauthorized to start quiz: ', error);
+        }
+    }
+
+    private generateExecutionId(): string {
+        const timestamp = new Date().getTime();
+        const randomId = Math.random().toString(36).substr(2, 6);
+        const executionId = `${timestamp}-${randomId}`;
+    
+        return executionId;
+    }
+    
 }
+
