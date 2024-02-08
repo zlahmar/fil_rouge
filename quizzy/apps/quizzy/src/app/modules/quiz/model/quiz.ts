@@ -4,6 +4,7 @@ export class Quiz {
   description: string;
   questions: Question[];
   _links:any;
+  executionId: string;
 
   constructor(id: string, title: string) {
       this.id = id;
