@@ -94,7 +94,9 @@ describe('QuizController', () => {
           ],
         },
       ],
-      _links: undefined
+      _links: undefined,
+      executionId: 'executionId',
+
     };
 
     const response = await request(app.getHttpServer())

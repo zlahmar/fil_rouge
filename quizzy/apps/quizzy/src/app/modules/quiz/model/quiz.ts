@@ -14,7 +14,11 @@ export class Quiz {
   questions: Question[];
   @IsObject()
   _links: object;
+
+  @IsString()
+  executionId: string;
 }
+
 export class Question {
 
     id: string;

@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Injectable, Inject, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { Answer, Question, Quiz } from './model/quiz';
 import { FirebaseAdmin, FirebaseConstants } from 'nestjs-firebase';
+import { Socket } from 'socket.io';
+
 
 @Injectable()
 export class QuizService {
     listQuiz = []
     constructor(@Inject(FirebaseConstants.FIREBASE_TOKEN) private readonly fa: FirebaseAdmin) {}
+    private hostClients: Map<string, Socket> = new Map();
+
 
     async create(newQuiz: Quiz, uidUser: string): Promise<any> {
         try {
@@ -14,7 +18,9 @@ export class QuizService {
                 uid: uidUser,
                 title: newQuiz.title,
                 description: newQuiz.description,
+                execution_id: "executionId"
             });
+            console.log("quizDocRef: ", quizDocRef);
             
             return String(quizDocRef.id);
 
@@ -211,7 +217,7 @@ export class QuizService {
         }
     }
     
-    async startQuizz(quizId: string, uid: string): Promise<string | void> {
+    async startQuizz(quizId: string, uid: string): Promise<string> {
         try {
             const quiz = await this.getQuizById(quizId, uid);
     
@@ -225,11 +231,30 @@ export class QuizService {
     
             // Générez l'ID d'exécution
             const executionId = this.generateExecutionId();
+
+            // Stockez l'ID d'exécution dans Firestore
+
+            await this.fa.firestore.collection('quiz').doc(quizId).set({ execution_id: executionId }, { merge: true });
+           const quizDocument = await this.fa.firestore.collection('quiz').doc(quizId).get();
+           console.log("quizDocument: ", quizDocument);
+
+
+            
     
             return executionId;
     
         } catch (error) {
             throw new UnauthorizedException('Unauthorized to start quiz: ', error);
+        }
+    }
+    async getQuizDetailsByExecutionId(executionId: string): Promise<any> {
+        try {
+            const quizDocument = await this.fa.firestore.collection('quiz').where('execution_id', '==', executionId).get();
+            const quiz = quizDocument.docs[0];
+            console.log("quizDocument: ", quizDocument);
+            return quiz.data();
+        } catch (error) {
+            throw new UnauthorizedException('Unauthorized Get this quiz: ', error);
         }
     }
 
@@ -240,5 +265,56 @@ export class QuizService {
     
         return executionId;
     }
+
+    /*async handleHostEvent(socket, executionId: string): Promise<void> {
+        // Stocker le client qui se connecte en tant qu'hôte
+        this.hostClients.set(executionId, socket);
+    
+        // Envoyer les détails du quiz uniquement à l'hôte
+        const quizDetails = await this.getQuizDetails(executionId);
+        socket.emit('hostDetails', { quiz: quizDetails });
+    
+        // Envoyer le statut à toutes les personnes connectées à cette exécution
+        const participantsCount = this.getConnectedParticipantsCount(executionId);
+        socket.emit('status', { status: 'waiting', participants: participantsCount });
+      }
+
+      private async getQuizDetails(executionId: string): Promise<{ quiz: string }> {
+
+        // Vous devez implémenter la logique pour récupérer les détails du quiz
+        // en fonction de l'exécutionId depuis votre base de données
+        const documentData = await this.fa.firestore.collection('quiz').where('execution_id', '==', executionId).get();
+        if (documentData.empty) {
+            return null;
+        }
+        const quizDetails = documentData.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data['title'],
+                description: data['description'],
+                questions: data['questions'],
+
+                // Autres propriétés de la question
+            };
+        })
+        return quizDetails[0].title;
+
+
+
+
+      }*/
+    
+      private getConnectedParticipantsCount(executionId: string): number {
+        // Utiliser la méthode Array.from pour obtenir un tableau des participants
+        const participantsArray = Array.from(this.hostClients.entries());
+        
+        // Filtrer le tableau pour ne garder que les participants de l'exécution spécifiée
+        const participantsInExecution = participantsArray.filter(([key, value]) => key === executionId);
+      
+        // Retourner le nombre de participants dans cette exécution
+        return participantsInExecution.length;
+      }
+      
     
 }

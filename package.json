@@ -1,5 +1,10 @@
 {
   "devDependencies": {
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@nestjs/platform-socket.io": "^10.3.2",
+    "@nestjs/websockets": "^10.3.2",
+    "socket.io": "^4.7.4"
   }
 }

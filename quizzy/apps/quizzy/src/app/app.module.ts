@@ -7,6 +7,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { PingModule } from './modules/ping/ping.module';
 import { AuthMiddleware } from './modules/auth/auth.middleware';
+import { SocketModule } from './modules/socket/socket.module';
+
+
+
 
 @Module({
   imports: [
@@ -19,7 +23,8 @@ import { AuthMiddleware } from './modules/auth/auth.middleware';
     UsersModule,
     AuthModule,
     QuizModule,
-    PingModule
+    PingModule,
+    SocketModule
   ],
   controllers: [AppController],
   providers: [AppService]

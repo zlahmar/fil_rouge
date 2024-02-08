@@ -6,10 +6,19 @@ import { Auth } from '../auth/auth.decorator';
 import { Question } from './model/quiz';
 import { validateOrReject } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { Socket } from 'socket.io';
+import { WsResponse } from '@nestjs/websockets';
+import { WebSocketGateway } from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketServer } from '@nestjs/websockets';
+import { Server } from 'socket.io';
 
 @Controller('quiz')
+//@WebSocketGateway()
+
 export class QuizController {
     constructor(private readonly quizzService: QuizService) { }
+    //@WebSocketServer()
+    //server: Server;
 
     @Auth()
     @Post()
@@ -147,7 +156,7 @@ export class QuizController {
     //         throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
     //     }
     // }
-
+    //@SubscribeMessage('startQuiz')
     async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
         try {
             const quizId = request.params.quizId;
@@ -156,10 +165,24 @@ export class QuizController {
             //const quiz = await this.quizzService.getQuizById(quizId, uid);
             const executionId = await this.quizzService.startQuizz(quizId, uid);
 
-            const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
+            console.log("executionId: ", executionId);
+            /*const socket = request.socket;
+          await this.quizzService.handleHostEvent(socket, executionId);*/
+
+            /*if (!this.socketGateway.server) {
+                throw new HttpException('WebSocket server is not initialized', HttpStatus.INTERNAL_SERVER_ERROR);
+            }*/
+            //this.socketGateway.server.emit('quizStarted', { executionId });
+            console.log('API_MODE:', process.env.API_MODE);
+            console.log('API_DEV_BASEURL:', process.env.API_DEV_BASEURL);
+            console.log('API_PROD_BASEURL:', process.env.API_PROD_BASEURL);
+
+            const apiUrl =  "http://localhost:3000/api" 
             const executionUrl = `${apiUrl}/execution/${executionId}`;
             console.log("executionUrl: ", executionUrl);
             //console.log("res: ", res.location(executionUrl).status(HttpStatus.CREATED).send());
+
+
 
     
             return res.location(executionUrl).status(HttpStatus.CREATED).send();
