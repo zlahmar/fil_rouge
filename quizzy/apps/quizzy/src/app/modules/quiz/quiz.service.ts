@@ -251,7 +251,8 @@ export class QuizService {
         try {
             const quizDocument = await this.fa.firestore.collection('quiz').where('execution_id', '==', executionId).get();
             const quiz = quizDocument.docs[0];
-            console.log("quizDocument: ", quizDocument);
+            
+            console.log("quizDocument: ", quizDocument.docs[0]);
             return quiz.data();
         } catch (error) {
             throw new UnauthorizedException('Unauthorized Get this quiz: ', error);
@@ -261,7 +262,7 @@ export class QuizService {
     private generateExecutionId(): string {
         const timestamp = new Date().getTime();
         const randomId = Math.random().toString(36).substr(2, 6);
-        const executionId = `${timestamp}-${randomId} `;
+        const executionId = `${timestamp}-${randomId}`;
     
         return executionId;
     }
@@ -305,7 +306,7 @@ export class QuizService {
 
       }*/
     
-      private getConnectedParticipantsCount(executionId: string): number {
+        getConnectedParticipantsCount(executionId: string): number {
         // Utiliser la méthode Array.from pour obtenir un tableau des participants
         const participantsArray = Array.from(this.hostClients.entries());
         
@@ -313,6 +314,7 @@ export class QuizService {
         const participantsInExecution = participantsArray.filter(([key, value]) => key === executionId);
       
         // Retourner le nombre de participants dans cette exécution
+        console.log("participantsInExecution: ", participantsInExecution);
         return participantsInExecution.length;
       }
       

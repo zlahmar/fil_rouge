@@ -1,6 +1,6 @@
 // socket.gateway.ts
 
-import { SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, MessageBody, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { QuizService } from '../quiz/quiz.service';
 
@@ -57,6 +57,31 @@ import { QuizService } from '../quiz/quiz.service';
     } catch (error) {
       console.error('Error handling host event:', error);
       // Gérer les erreurs
+    }
+  }
+
+  
+  @SubscribeMessage('join')
+  async handleJoinEvent(@MessageBody() payload: { executionId: string }, @ConnectedSocket() client: Socket): Promise<any> {
+    const executionId = payload.executionId;
+    console.log('Join event :', executionId);
+
+    try {
+      // Vérifier si l'exécution existe et obtenir des détails sur le quiz
+      const quizDetails = await this.quizService.getQuizDetailsByExecutionId(executionId);
+      console.log('Quiz details:', quizDetails);
+
+      // Événement joinDetails
+      client.emit('joinDetails', { quizTitle: quizDetails.title });
+
+      // Événement status
+      const participantsCount =  this.quizService.getConnectedParticipantsCount(executionId);
+      console.log('Participants count:', participantsCount);
+      client.emit('status', { status: 'waiting', participants: participantsCount });
+
+    } catch (error) {
+      // Gérer les erreurs, par exemple si l'exécution n'existe pas
+      client.emit('error', { message: 'Invalid execution ID' });
     }
   }
 }
