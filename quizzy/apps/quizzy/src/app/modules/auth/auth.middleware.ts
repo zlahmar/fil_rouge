@@ -7,7 +7,6 @@ export interface TokenDetails {
 }
 
 export interface RequestModel extends Request {
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
 }
 
@@ -41,7 +40,7 @@ export class AuthMiddleware implements NestMiddleware {
       return this.repository.getUserFromToken(tokenString);
     } catch (err) {
       this.logger.error(`error while authenticate request ${err.message}`);
-      throw new UnauthorizedException(err.message);
+      throw new UnauthorizedException('Unauthorized authenticate');
     }
   }
 

@@ -7,7 +7,6 @@ import { AuthRepository } from '../ports/auth.repository';
 export class FirebaseAuthRepository implements AuthRepository {
   async getUserFromToken(token: string): Promise<UserDetails> {
     const decodedToken = await admin.auth().verifyIdToken(token);
-
     return {
       email: decodedToken.email,
       uid: decodedToken.uid,
@@ -23,4 +22,3 @@ export class FirebaseAuthRepository implements AuthRepository {
         uid: user.uid,
       }));
   }
-}
