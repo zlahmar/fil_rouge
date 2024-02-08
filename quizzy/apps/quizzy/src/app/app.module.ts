@@ -12,7 +12,7 @@ import { SocketModule } from './modules/socket/socket.module';
 @Module({
   imports: [
     FirebaseModule.forRoot({  
-      googleApplicationCredential:'/Users/quentin/webservice_ynov/fil_rouge/quizzy/apps/quizzy/src/assets/quizzy-firebase-adminsdk.json',//'apps/quizzy/src/assets/quizzy-firebase.json',
+      googleApplicationCredential:'apps/quizzy/src/assets/quizzy-firebase.json',
     }),
     UsersModule,
     AuthModule,
