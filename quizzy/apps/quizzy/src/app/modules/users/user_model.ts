@@ -5,6 +5,5 @@ import * as admin from 'firebase-admin';
 export class User {
     public username:string;
     public email:string;
-    //public password:string;
     public uid:string;
 }

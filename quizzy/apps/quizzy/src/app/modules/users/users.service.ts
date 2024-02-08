@@ -18,13 +18,13 @@ export class UsersService {
         try {
             const documentData = await this.fa.firestore.collection('utilisateurs').doc(uidUser).get();
             if (!documentData.exists){
-                throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+                throw new HttpException('Unauthorized to get user from firestore', HttpStatus.UNAUTHORIZED);
             }
             const dataUser = documentData.data();
 
             return {username: dataUser['username'], uid: dataUser['uid'], email: dataUser['email']};
         } catch (error) {
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Unauthorized to get user', HttpStatus.UNAUTHORIZED);
         }
     }
 }

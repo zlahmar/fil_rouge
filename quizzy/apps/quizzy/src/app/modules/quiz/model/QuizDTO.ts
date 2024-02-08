@@ -12,11 +12,4 @@ export class CreateQuizDTO {
     @IsString({ message: 'description must be a string' })
     description: string;
 
-    public toJson(): any{
-        console.log("JSONdto: ", JSON.stringify(this))
-        return {
-            title: this.title,
-            description: this.description
-        };
-    }
 }

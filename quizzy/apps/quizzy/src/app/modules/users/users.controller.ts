@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Req, Body, Headers, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Req, Body, Headers, HttpException, HttpStatus,Response } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Auth } from '../auth/auth.decorator';
 import { RequestWithUser } from '../auth/model/request-with-user';
@@ -10,12 +10,12 @@ export class UsersController {
 @Auth()
 @Post()
 
-async createUser(@Body() newUser, @Req() request : RequestWithUser) {
+async createUser(@Body() newUser, @Req() request : RequestWithUser, @Response() res) {
     const uid = request.user.uid;
     const email = request.user.email;
-    const resCreate = await this.userService.createUser(newUser, uid, email);
-    return HttpStatus.CREATED; //status code 201
-    // return resCreate;
+    res.Body = await this.userService.createUser(newUser, uid, email);
+    res.status = HttpStatus.CREATED;
+    return res;
   }
 
 @Get('/me')
