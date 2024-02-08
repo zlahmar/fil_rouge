@@ -1,4 +1,4 @@
-import { Body, Controller, UseGuards, Post, Get, Req, Headers, HttpException, HttpStatus, Response, Patch, Put } from '@nestjs/common';
+import { Body, Controller, UseGuards, Post, Get, Req, Headers, HttpException, HttpStatus, Response, Patch, Put, ValidationPipe, ValidationError } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { Response as Res } from 'express';
 import { RequestWithUser } from '../auth/model/request-with-user';
@@ -6,6 +6,9 @@ import { Auth } from '../auth/auth.decorator';
 import { Question } from './model/quiz';
 import { validateOrReject } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { CreateQuizDTO } from './model/QuizDTO';
+import { PatchQuizDTO } from './model/PatchQuizDTO';
+import { QuestionDTO } from './model/QuestionDTO';
 
 @Controller('quiz')
 export class QuizController {
@@ -13,34 +16,21 @@ export class QuizController {
 
     @Auth()
     @Post()
-    async createQuiz(@Body() newQuizz, @Response() res: Res, @Req() request : RequestWithUser){
+    async addQuiz(@Response() res: Res, @Req() request: RequestWithUser, @Body(new ValidationPipe({
+        disableErrorMessages: true,
+        exceptionFactory: (errors: ValidationError[]) => new HttpException('Validation error', HttpStatus.BAD_REQUEST),
+    })) theNewQuiz: CreateQuizDTO){
         try {
-            const uid = request.user.uid;
-            const resQuiz = await this.quizzService.create(newQuizz, uid);
-            console.log("resQuiz: ", resQuiz);
-            if (!resQuiz) {
-                throw new HttpException('No token provided', HttpStatus.SERVICE_UNAVAILABLE);
+            const uidUser = request.user.uid;
+            const resultCreateQuiz = await this.quizzService.createQuiz(theNewQuiz, uidUser);
+
+            if (!resultCreateQuiz) {
+                console.log("Function: createQuiz => Firebase Error ! ");
+                throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
             }
-            // const urlCreate = "http://localhost:3000/api/quiz/" + resQuiz;
-            // console.log("urlCreate: ", urlCreate);
-
-            // //lien HATEOAS 'create' à la réponse
-            // const response = {
-            //     data: [{ id: resQuiz }],
-            //     _links: { create: `http://localhost:3000/api/quiz` },
-            // };
-
-            const urlCreate = `http://localhost:3000/api/quiz/${resQuiz}`;
-
-            const quizzes = await this.quizzService.selectAll(uid);
 
             // lien HATEOAS 'create' à la réponse
-            const response = {
-                data: quizzes.data,
-                _links: { create: `http://localhost:3000/api/quiz` },
-            };
-
-            return res.set({ 'Location': urlCreate }).json();
+            return res.set({ 'Location': resultCreateQuiz }).json();
 
         } catch (error) {
             throw new HttpException('Unauthorized to create the quiz', HttpStatus.UNAUTHORIZED);
@@ -48,52 +38,55 @@ export class QuizController {
     }
 
     @Get()
-    getAllQuiz(@Req() request : RequestWithUser, @Headers('authorization') authHeader: string) {
-        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-        console.log("token: ",token)
-        console.log("allquizz: ",request)
+    getAllQuiz(@Req() request: RequestWithUser) {
         try {
-            const uid = request.user.uid;
-            const listeQuiz = this.quizzService.selectAll(uid);
+            const uidUser = request.user.uid;
+            const listeQuiz = this.quizzService.selectAll(uidUser);
+
             return listeQuiz;
+
         } catch (error) {
+
             throw new HttpException('Unauthorized to get all Quiz', HttpStatus.UNAUTHORIZED);
         }
     }
 
     @Patch(':quizId')
-    async updateQuiz(@Req() request: RequestWithUser, @Response() res: Res, @Body() updateData: any,) {
+    async patchQuiz(@Req() request: RequestWithUser, @Response() res: Res, @Body(new ValidationPipe({
+        disableErrorMessages: true,
+        exceptionFactory: (errors: ValidationError[]) => new HttpException('Validation error', HttpStatus.BAD_REQUEST),
+    })) thePatchQuiz: [PatchQuizDTO]) {
         try {
-            const uid = request.user.uid;
+            // console.log("thePatchQuiz: ", thePatchQuiz);
+            const uidUser = request.user.uid;
             const quizId = request.params.quizId;
-            const quiz = await this.quizzService.getQuizById(quizId, uid);
-            if (quiz) {
-                await this.quizzService.updateQuiz(quizId, updateData, uid);
-                return res.sendStatus(204).json();
-            } else {
-                throw new HttpException('Quiz not found or unauthorized', HttpStatus.NOT_FOUND);
-            }
+
+            await this.quizzService.patchQuiz(quizId, uidUser, thePatchQuiz);
+
+            return res.sendStatus(204);
+
         } catch (error) {
-            if (error instanceof HttpException) {
-                throw error;
-            } else {
-                throw new HttpException('Unauthorized to update the quiz', HttpStatus.UNAUTHORIZED);
-            }
-        }    
+            console.log("ERROR Patch: ", error);
+            throw new HttpException('Unauthorized', HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @Post(':quizId/questions')
-    async createQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
+    async createQuestion(@Req() request: RequestWithUser, @Response() res: Res, @Body(new ValidationPipe({
+        disableErrorMessages: true,
+        exceptionFactory: (errors: ValidationError[]) => new HttpException('Validation error: '+errors, HttpStatus.BAD_REQUEST),
+    })) theNewQuestion: QuestionDTO) {
         try {
-            const uid = request.user.uid;
-            const newQuestion = plainToClass(Question, request.body);
-            await validateOrReject(newQuestion);
+            const uidUser = request.user.uid;
+            const quizId = request.params.quizId;
+            const resultCreateQuestion = await this.quizzService.createQuestion(uidUser, quizId, theNewQuestion);
 
-            const resCreate = await this.quizzService.createQuestion(request.params.quizId,request.body, uid);
-            if (resCreate) {
-                return res.setHeader('Location', 'http://localhost:3000/api/quiz/' + request.params.quizId +"/questions/"+ resCreate.id).json();
-            }else{
-                throw new HttpException('No token provided', HttpStatus.NOT_FOUND);
+            if (resultCreateQuestion.id) {
+                console.log("resultCreateQuestion: ", resultCreateQuestion.id);
+                return res.setHeader('Location', 'http://localhost:3000/api/quiz/' + request.params.quizId + "/questions/" + resultCreateQuestion.id).json();
+            } else {
+                throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
             }
         } catch (error) {
             console.log("ERROR Post: ", error);
@@ -102,30 +95,33 @@ export class QuizController {
     }
 
     @Get(':quizId')
-    async getQuizById(@Req() request: RequestWithUser) {
+    async getOneQuiz(@Req() request: RequestWithUser) {
         try {
             const uid = request.user.uid;
             const quizId = request.params.quizId;
 
-            const quiz = await this.quizzService.getQuizById(quizId, uid);
+            const theQuiz = await this.quizzService.getQuizById(quizId, uid);
 
-            return quiz;
+            return theQuiz;
         } catch (error) {
             throw new HttpException('Unauthorized to get the quiz', HttpStatus.UNAUTHORIZED);
         }
     }
 
     @Put(':quizId/questions/:questionId')
-    async updateQuestion(@Req() request : RequestWithUser, @Response() res: Res) {
-        try {
-            const uid = request.user.uid;
-            const newQuestion = plainToClass(Question, request.body);
-            await validateOrReject(newQuestion);
+    async updateQuestion(@Req() request: RequestWithUser, @Response() res: Res, @Body(new ValidationPipe({
+        disableErrorMessages: true,
+        exceptionFactory: (errors: ValidationError[]) => new HttpException('Validation error: ' + errors, HttpStatus.BAD_REQUEST),
+    })) theNewQuestion: QuestionDTO) {
 
-            const resUpdate = await this.quizzService.updateQuestion(request.params.quizId,request.params.questionId,request.body, uid);
+        try {
+            const uidUser = request.user.uid;
+            const reqParams = request.params;
+
+            const resUpdate = await this.quizzService.updateQuestion(reqParams.quizId, reqParams.questionId, uidUser, theNewQuestion);
             if (resUpdate) {
                 return res.sendStatus(204);
-            }else{
+            } else {
                 throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
             }
         } catch (error) {
@@ -135,42 +131,6 @@ export class QuizController {
     }
 
     @Post(':quizId/start')
-    // async startQuizz(@Req() request: RequestWithUser, @Response() res: Res) {
-    //     const apiUrl = process.env.API_MODE == "dev" ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
-    //     try {
-    //         var response;
-    //         response.Headers['location'] = apiUrl + '/execution/' + request.params.quizId;
-    //         response.data = this.quizzService.startQuizz(request.params.quizId, request.user.uid);
-    //         return response;
-    //     } catch (error) {
-    //         console.log("ERROR PATCH: ", error);
-    //         throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
-    //     }
-    // }
-
-    // async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
-    //     try {
-    //         const quizId = request.params.quizId;
-    //         const uid = request.user.uid;
-
-    //         //const quiz = await this.quizzService.getQuizById(quizId, uid);
-    //         const executionId = await this.quizzService.startQuizz(quizId, uid);
-
-    //         const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
-    //         const executionUrl = `${apiUrl}/execution/${executionId}`;
-    
-    //         return res.location(executionUrl).status(HttpStatus.CREATED).send();
-    //     } catch (error) {
-    //         console.error('Error in startQuiz:', error);
-
-    //         if (error instanceof HttpException) {
-    //             throw error;
-    //         } else {
-    //             throw new HttpException('Unauthorized to start', HttpStatus.UNAUTHORIZED);
-    //         }
-    //     }
-    // }
-
     async startQuizz(@Req() request : RequestWithUser, @Response() res: Res) {
         try {
             const quizId = request.params.quizId;
@@ -179,10 +139,20 @@ export class QuizController {
             //const quiz = await this.quizzService.getQuizById(quizId, uid);
             const executionId = await this.quizzService.startQuizz(quizId, uid);
 
-            const apiUrl = process.env.API_MODE === 'dev' ? process.env.API_DEV_BASEURL : process.env.API_PROD_BASEURL;
-            const executionUrl = `${apiUrl}/execution/${executionId}`;
+            console.log("executionId: ", executionId);
+            /*const socket = request.socket;
+          await this.quizzService.handleHostEvent(socket, executionId);*/
+
+            /*if (!this.socketGateway.server) {
+                throw new HttpException('WebSocket server is not initialized', HttpStatus.INTERNAL_SERVER_ERROR);
+            }*/
+            //this.socketGateway.server.emit('quizStarted', { executionId });
+
+            const executionUrl = `${process.env.API_BASE_URL}/execution/${executionId}`;
             console.log("executionUrl: ", executionUrl);
             //console.log("res: ", res.location(executionUrl).status(HttpStatus.CREATED).send());
+
+
 
     
             return res.location(executionUrl).status(HttpStatus.CREATED).send();

@@ -16,6 +16,7 @@ async function bootstrap() {
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );
+  process.env.API_BASE_URL = `http://localhost:${port}/${globalPrefix}`;
 }
 
 bootstrap();

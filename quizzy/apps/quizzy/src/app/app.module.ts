@@ -7,16 +7,18 @@ import { AuthModule } from './modules/auth/auth.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { PingModule } from './modules/ping/ping.module';
 import { AuthMiddleware } from './modules/auth/auth.middleware';
+import { SocketModule } from './modules/socket/socket.module';
 
 @Module({
   imports: [
     FirebaseModule.forRoot({  
-      googleApplicationCredential:'apps/quizzy/src/assets/quizzy-firebase.json',
+      googleApplicationCredential:'apps/quizzy/src/assets/quizzy-firebase.json',//'/Users/quentin/webservice_ynov/fil_rouge/quizzy/apps/quizzy/src/assets/quizzy-firebase-adminsdk.json',
     }),
     UsersModule,
     AuthModule,
     QuizModule,
-    PingModule
+    PingModule,
+    SocketModule
   ],
   controllers: [AppController],
   providers: [AppService],
