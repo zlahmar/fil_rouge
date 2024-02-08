@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FirebaseModule } from 'nestjs-firebase';
@@ -21,7 +22,7 @@ import { SocketModule } from './modules/socket/socket.module';
     SocketModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {
   public configure(consumer: MiddlewareConsumer){
@@ -29,4 +30,4 @@ export class AppModule {
       .apply(AuthMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
-}
+

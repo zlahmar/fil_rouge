@@ -25,4 +25,3 @@ async getUser(@Req() request : RequestWithUser) {
     return retour;
   }
 }
-

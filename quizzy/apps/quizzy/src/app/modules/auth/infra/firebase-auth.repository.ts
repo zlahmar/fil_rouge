@@ -22,4 +22,3 @@ export class FirebaseAuthRepository implements AuthRepository {
         uid: user.uid,
       }));
   }
-}
